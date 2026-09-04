@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Detalle de Torneo · Circuito PM</title>
+<style>
+  :root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --bg-hover: #1c2128;
+    --border-default: #30363d;
+    --border-muted: #21262d;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --accent: #58a6ff;
+    --accent-muted: #1f6feb;
+    --success: #3fb950;
+    --success-bg: rgba(63, 185, 80, 0.15);
+    --danger: #f85149;
+    --danger-bg: rgba(248, 81, 73, 0.15);
+    --warning: #d29922;
+    --warning-bg: rgba(210, 153, 34, 0.15);
+    --caballeros: #58a6ff;
+    --caballeros-bg: rgba(88, 166, 255, 0.15);
+    --damas: #db61a2;
+    --damas-bg: rgba(219, 97, 162, 0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg-primary); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+    color: var(--text-primary); padding: 20px; font-size: 13px; line-height: 1.5; min-height: 100vh;
+  }
+
+  /* API CONTROL BAR */
+  .api-bar {
+    background: var(--bg-secondary); border: 1px solid var(--border-default);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 14px;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .api-bar label {
+    font-size: 11px; color: var(--text-secondary); text-transform: uppercase;
+    letter-spacing: 0.6px; font-weight: 600;
+  }
+  .api-bar input {
+    padding: 6px 10px; background: var(--bg-primary); border: 1px solid var(--border-default);
+    border-radius: 6px; color: var(--text-primary); font-family: "SF Mono", Monaco, monospace; font-size: 12px;
+  }
+  .api-bar input.base { width: 260px; }
+  .api-bar input.small { width: 70px; text-align: center; }
+  .api-bar input.token { width: 200px; }
+  .api-bar input:focus { outline: none; border-color: var(--accent); }
+  .api-bar button {
+    padding: 6px 14px; background: var(--accent-muted); color: white; border: none;
+    border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+  }
+  .api-bar button:hover { background: var(--accent); }
+  .api-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .api-bar button.secondary { background: var(--bg-tertiary); border: 1px solid var(--border-default); }
+  .api-bar button.secondary:hover { background: var(--bg-hover); }
+  .api-bar .status {
+    font-size: 11px; color: var(--text-muted); font-family: "SF Mono", monospace; margin-left: auto;
+  }
+  .api-bar .status.loading { color: var(--warning); }
+  .api-bar .status.ok { color: var(--success); }
+  .api-bar .status.error { color: var(--danger); }
+
+  /* CACHE BAR */
+  .cache-bar {
+    background: var(--bg-secondary); border: 1px solid var(--border-default);
+    border-radius: 10px; padding: 10px 18px; margin-bottom: 18px;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 11px;
+  }
+  .cache-bar .cache-info { color: var(--text-secondary); }
+  .cache-bar .cache-info strong { color: var(--accent); font-family: "SF Mono", monospace; font-size: 12px; }
+
+  /* ERROR BOX */
+  .error-box {
+    background: var(--danger-bg); border: 1px solid rgba(248, 81, 73, 0.4);
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 18px;
+  }
+  .error-box h3 { color: var(--danger); font-size: 13px; margin-bottom: 8px; }
+  .error-box p { font-size: 12px; margin-bottom: 6px; }
+  .error-box code {
+    font-family: "SF Mono", monospace; background: var(--bg-primary); padding: 2px 6px;
+    border-radius: 4px; font-size: 11px; color: var(--warning);
+  }
+  .error-box ul { margin: 6px 0 0 20px; font-size: 12px; color: var(--text-secondary); }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border: 1px solid var(--border-default); border-radius: 10px; padding: 18px 20px; margin-bottom: 18px;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .badge {
+    background: var(--bg-tertiary); border: 1px solid var(--border-default);
+    border-radius: 6px; padding: 4px 10px; font-size: 11px; color: var(--text-secondary); font-weight: 500;
+  }
+  .badge.estado-inscripcion { background: var(--success-bg); color: var(--success); border-color: rgba(63, 185, 80, 0.4); }
+  .badge.estado-cerrado { background: var(--danger-bg); color: var(--danger); border-color: rgba(248, 81, 73, 0.4); }
+  .badge.estado-en-curso { background: var(--warning-bg); color: var(--warning); border-color: rgba(210, 153, 34, 0.4); }
+  .desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.55; }
+
+  /* KPIs */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .kpi {
+    background: var(--bg-secondary); border: 1px solid var(--border-default);
+    border-radius: 8px; padding: 14px 16px; transition: transform 0.15s, border-color 0.15s;
+  }
+  .kpi:hover { border-color: var(--accent-muted); transform: translateY(-1px); }
+  .kpi .val { font-size: 26px; font-weight: 700; line-height: 1.1; }
+  .kpi .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; font-weight: 600; }
+  .kpi.accent .val { color: var(--accent); }
+  .kpi.success .val { color: var(--success); }
+  .kpi.damas-c .val { color: var(--damas); }
+
+  /* SECTION */
+  .section-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); margin-bottom: 10px; margin-top: 20px; padding-bottom: 6px; border-bottom: 1px solid var(--border-muted);
+  }
+
+  /* FILTROS */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+  .filter-row input, .filter-row select {
+    padding: 6px 10px; border: 1px solid var(--border-default); border-radius: 6px;
+    font-size: 12px; background: var(--bg-secondary); color: var(--text-primary); font-family: inherit;
+  }
+  .filter-row input:focus, .filter-row select:focus { outline: none; border-color: var(--accent); }
+  .filter-row input { width: 220px; }
+  .filter-row input::placeholder { color: var(--text-muted); }
+
+  /* TABLES */
+  .table-wrap { background: var(--bg-secondary); border: 1px solid var(--border-default); border-radius: 8px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--bg-tertiary); padding: 10px 12px; text-align: left; font-weight: 600;
+    color: var(--text-secondary); border-bottom: 1px solid var(--border-default); cursor: pointer;
+    user-select: none; white-space: nowrap; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  thead th:hover { background: var(--bg-hover); color: var(--text-primary); }
+  thead th .sort-icon { margin-left: 4px; opacity: 0.4; font-size: 10px; }
+  thead th.sorted { color: var(--accent); }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+  tbody tr { border-bottom: 1px solid var(--border-muted); transition: background 0.12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-hover); }
+  td { padding: 10px 12px; vertical-align: middle; }
+
+  /* PILLS */
+  .pill {
+    display: inline-block; border-radius: 12px; padding: 2px 10px; font-size: 10px;
+    font-weight: 600; text-transform: capitalize; letter-spacing: 0.3px; border: 1px solid transparent;
+  }
+  .pill.caballeros { background: var(--caballeros-bg); color: var(--caballeros); border-color: rgba(88, 166, 255, 0.3); }
+  .pill.damas { background: var(--damas-bg); color: var(--damas); border-color: rgba(219, 97, 162, 0.3); }
+  .pill.inscripto, .pill.open { background: var(--success-bg); color: var(--success); border-color: rgba(63, 185, 80, 0.3); }
+  .pill.closed, .pill.rechazado { background: var(--danger-bg); color: var(--danger); border-color: rgba(248, 81, 73, 0.3); }
+  .pill.pendiente { background: var(--warning-bg); color: var(--warning); border-color: rgba(210, 153, 34, 0.3); }
+
+  /* PLAYERS DISPLAY */
+  .players { display: flex; flex-direction: column; gap: 2px; }
+  .players .p-name { font-weight: 600; color: var(--text-primary); font-size: 12px; }
+  .players .p-dni { font-family: "SF Mono", monospace; color: var(--text-muted); font-size: 10px; }
+  .players.unknown .p-name { color: var(--text-muted); font-style: italic; font-weight: 400; }
+  .team-tag {
+    display: inline-block; font-family: "SF Mono", monospace; font-size: 10px;
+    background: var(--bg-tertiary); color: var(--text-muted); padding: 1px 6px; border-radius: 4px;
+    margin-bottom: 2px;
+  }
+
+  /* PROGRESS BAR */
+  .bar-wrap {
+    background: var(--bg-tertiary); border-radius: 4px; height: 6px; width: 90px;
+    display: inline-block; vertical-align: middle; overflow: hidden; border: 1px solid var(--border-muted);
+  }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .bar-fill.full { background: linear-gradient(90deg, var(--success), #56d364); }
+  .bar-fill.med { background: linear-gradient(90deg, var(--warning), #e3b341); }
+  .bar-fill.low { background: linear-gradient(90deg, var(--accent-muted), var(--accent)); }
+
+  .reg-count { font-weight: 700; color: var(--accent); font-size: 13px; }
+  .cupo-num { color: var(--text-muted); font-size: 12px; }
+  .pct-label { font-size: 10px; color: var(--text-muted); margin-left: 6px; font-variant-numeric: tabular-nums; }
+
+  .reg-table-wrap {
+    max-height: 480px; overflow-y: auto; background: var(--bg-secondary);
+    border: 1px solid var(--border-default); border-radius: 8px;
+  }
+  .reg-table-wrap::-webkit-scrollbar { width: 10px; height: 10px; }
+  .reg-table-wrap::-webkit-scrollbar-track { background: var(--bg-secondary); }
+  .reg-table-wrap::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 5px; }
+  .reg-table-wrap::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  .reg-table-wrap thead th { position: sticky; top: 0; z-index: 1; }
+
+  .schedule-cell { max-width: 260px; font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+  .empty-cell { color: var(--text-muted); font-style: italic; }
+  .caption { font-size: 10px; color: var(--text-muted); margin-top: 8px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  .mono { font-family: "SF Mono", monospace; font-size: 11px; color: var(--text-secondary); }
+  .format-cell { font-size: 10px; color: var(--text-secondary); font-family: "SF Mono", monospace; }
+
+  .hidden { display: none !important; }
+  .spinner {
+    display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border-default);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* PROGRESS MODAL */
+  .progress-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex;
+    align-items: center; justify-content: center; z-index: 100;
+  }
+  .progress-modal {
+    background: var(--bg-secondary); border: 1px solid var(--border-default);
+    border-radius: 10px; padding: 24px; min-width: 380px; max-width: 500px;
+  }
+  .progress-modal h3 { color: var(--accent); font-size: 14px; margin-bottom: 12px; }
+  .progress-modal .status-line { font-family: "SF Mono", monospace; font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
+  .progress-modal .bar-container { background: var(--bg-tertiary); height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+  .progress-modal .bar-progress { height: 100%; background: linear-gradient(90deg, var(--accent-muted), var(--accent)); transition: width 0.2s; }
+  .progress-modal .counters { display: flex; gap: 16px; font-size: 12px; margin-top: 8px; }
+  .progress-modal .counters span { color: var(--text-muted); }
+  .progress-modal .counters strong { color: var(--text-primary); font-family: "SF Mono", monospace; }
+
+  @media (max-width: 640px) {
+    body { padding: 12px; }
+    .api-bar input.base, .api-bar input.token { width: 100%; }
+    .header h1 { font-size: 16px; }
+    .kpi .val { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- API CONTROL -->
+<div class="api-bar">
+  <label>API</label>
+  <input type="text" id="baseUrl" value="https://circuitopm.ar" spellcheck="false" class="base"/>
+  <label>Torneo ID</label>
+  <input type="number" id="tournamentId" value="16" class="small" min="1"/>
+  <label>Bearer Token</label>
+  <input type="password" id="bearerToken" placeholder="eyJhbGci..." class="token"/>
+  <button id="fetchBtn" onclick="fetchTournament()">🔄 Cargar</button>
+  <span class="status" id="apiStatus">Listo</span>
+</div>
+
+<!-- CACHE BAR -->
+<div class="cache-bar">
+  <span class="cache-info">💾 Cache de equipos: <strong id="cacheCount">0</strong> teams · última precarga: <strong id="cacheDate">nunca</strong></span>
+  <button class="secondary" onclick="showPreloadModal()">⚡ Precargar equipos</button>
+  <button class="secondary" onclick="clearCache()">🗑 Vaciar cache</button>
+</div>
+
+<div id="errorBox" class="error-box hidden"></div>
+
+<div id="mainContent" class="hidden">
+  <div class="header">
+    <h1>🏆 <span id="t-name">—</span></h1>
+    <div class="meta" id="t-meta"></div>
+    <div class="desc" id="t-desc"></div>
+  </div>
+
+  <div id="kpis" class="kpis"></div>
+
+  <div class="section-title">Categorías</div>
+  <div class="filter-row">
+    <input type="text" id="searchInput" placeholder="🔎 Buscar categoría..." oninput="renderTable()"/>
+    <select id="genderFilter" onchange="renderTable()">
+      <option value="">Todos los géneros</option>
+      <option value="caballeros">Caballeros</option>
+      <option value="damas">Damas</option>
+    </select>
+    <select id="openFilter" onchange="renderTable()">
+      <option value="">Toda inscripción</option>
+      <option value="open">Sólo abiertas</option>
+      <option value="closed">Sólo cerradas</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortBy('name')" id="th-name">Categoría <span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('gender')" id="th-gender">Género <span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('inscriptions')" id="th-inscriptions">Inscriptos <span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('cupo')" id="th-cupo">Cupo <span class="sort-icon">↕</span></th>
+          <th>Ocupación</th>
+          <th onclick="sortBy('open')" id="th-open">Inscripción <span class="sort-icon">↕</span></th>
+          <th>Formato</th>
+        </tr>
+      </thead>
+      <tbody id="catBody"></tbody>
+    </table>
+  </div>
+  <div class="caption" id="caption"></div>
+
+  <div class="section-title">Parejas inscriptas</div>
+  <div class="filter-row">
+    <input type="text" id="regSearch" placeholder="🔎 Buscar por jugador, DNI o categoría..." oninput="renderRegistrations()"/>
+    <select id="regResolvedFilter" onchange="renderRegistrations()">
+      <option value="">Todas</option>
+      <option value="resolved">Sólo con nombres</option>
+      <option value="unresolved">Sólo sin resolver</option>
+    </select>
+  </div>
+  <div class="reg-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Categoría</th>
+          <th>Pareja</th>
+          <th>Estado</th>
+          <th>Problemas de horario</th>
+          <th>Fecha inscripción</th>
+        </tr>
+      </thead>
+      <tbody id="regBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PROGRESS MODAL -->
+<div id="progressOverlay" class="progress-overlay hidden">
+  <div class="progress-modal">
+    <h3>⚡ Precargando equipos desde torneos históricos</h3>
+    <div class="status-line" id="progressStatus">Iniciando...</div>
+    <div class="bar-container"><div class="bar-progress" id="progressBar" style="width:0%"></div></div>
+    <div class="counters">
+      <span>Torneos: <strong id="counterTournaments">0</strong></span>
+      <span>Categorías: <strong id="counterCats">0</strong></span>
+      <span>Teams nuevos: <strong id="counterTeams">0</strong></span>
+      <span>Errores: <strong id="counterErrors">0</strong></span>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="secondary" id="cancelPreloadBtn" onclick="cancelPreload()">Cancelar</button>
+      <button id="closePreloadBtn" onclick="closePreloadModal()" class="hidden">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ STATE ============
+let raw = null;
+let cats = [];
+let sortKey = 'rank';
+let sortDir = 1;
+let teamCache = {}; // { teamId: {player1, player2, dni1, dni2} }
+let preloadCancelled = false;
+
+// ============ LOCALSTORAGE ============
+const LS_TOKEN = 'circuitopm_token';
+const LS_CACHE = 'circuitopm_team_cache';
+const LS_CACHE_DATE = 'circuitopm_cache_date';
+const LS_BASE = 'circuitopm_base_url';
+
+function loadFromStorage() {
+  document.getElementById('bearerToken').value = localStorage.getItem(LS_TOKEN) || '';
+  document.getElementById('baseUrl').value = localStorage.getItem(LS_BASE) || 'https://circuitopm.ar';
+  try {
+    teamCache = JSON.parse(localStorage.getItem(LS_CACHE) || '{}');
+  } catch { teamCache = {}; }
+  updateCacheUI();
+}
+function saveToken() { localStorage.setItem(LS_TOKEN, document.getElementById('bearerToken').value.trim()); }
+function saveBase() { localStorage.setItem(LS_BASE, document.getElementById('baseUrl').value.trim()); }
+function saveCache() {
+  localStorage.setItem(LS_CACHE, JSON.stringify(teamCache));
+  localStorage.setItem(LS_CACHE_DATE, new Date().toISOString());
+  updateCacheUI();
+}
+function updateCacheUI() {
+  document.getElementById('cacheCount').textContent = Object.keys(teamCache).length;
+  const d = localStorage.getItem(LS_CACHE_DATE);
+  document.getElementById('cacheDate').textContent = d ? new Date(d).toLocaleString('es-AR') : 'nunca';
+}
+function clearCache() {
+  if (!confirm('¿Vaciar el cache de equipos? Se perderán todos los nombres asociados a team_ids.')) return;
+  teamCache = {};
+  localStorage.removeItem(LS_CACHE);
+  localStorage.removeItem(LS_CACHE_DATE);
+  updateCacheUI();
+  if (raw) renderRegistrations();
+}
+
+// ============ API ============
+function apiHeaders() {
+  const h = { 'Accept': 'application/json' };
+  const t = document.getElementById('bearerToken').value.trim();
+  if (t) h['Authorization'] = 'Bearer ' + t;
+  return h;
+}
+function apiBase() { return document.getElementById('baseUrl').value.trim().replace(/\/$/, ''); }
+
+async function apiGet(path) {
+  const url = apiBase() + path;
+  const res = await fetch(url, { headers: apiHeaders() });
+  if (!res.ok) throw new Error(`HTTP ${res.status} en ${path}`);
+  return res.json();
+}
+
+function absorbTeamsFromStandings(standingsData) {
+  let added = 0;
+  if (!standingsData || !Array.isArray(standingsData.data)) return 0;
+  standingsData.data.forEach(zone => {
+    (zone.standings || []).forEach(s => {
+      if (s.team && s.team.id != null) {
+        const existing = teamCache[s.team.id];
+        const entry = {
+          id: s.team.id,
+          dni1: s.team.player1_dni,
+          dni2: s.team.player2_dni,
+          p1: s.team.player1 ? `${s.team.player1.nombre.trim()} ${s.team.player1.apellido.trim()}` : null,
+          p2: s.team.player2 ? `${s.team.player2.nombre.trim()} ${s.team.player2.apellido.trim()}` : null,
+        };
+        if (!existing) added++;
+        teamCache[s.team.id] = entry;
+      }
+    });
+  });
+  return added;
+}
+
+// ============ MAIN FETCH ============
+async function fetchTournament() {
+  saveToken(); saveBase();
+  const id = document.getElementById('tournamentId').value.trim();
+  if (!id) return;
+
+  const statusEl = document.getElementById('apiStatus');
+  const btn = document.getElementById('fetchBtn');
+  const errorBox = document.getElementById('errorBox');
+
+  btn.disabled = true;
+  statusEl.className = 'status loading';
+  statusEl.innerHTML = '<span class="spinner"></span>Cargando torneo...';
+  errorBox.classList.add('hidden');
+
+  try {
+    const data = await apiGet(`/api/tournaments/${id}`);
+    if (!data.data || !data.data.categories) throw new Error('El JSON no tiene la estructura esperada.');
+    raw = data;
+    renderAll();
+    document.getElementById('mainContent').classList.remove('hidden');
+
+    // Enriquecer con standings de este torneo (por si ya se sortearon zonas)
+    statusEl.innerHTML = '<span class="spinner"></span>Enriqueciendo equipos...';
+    let enriched = 0;
+    const jobs = raw.data.categories.map(async tc => {
+      try {
+        const s = await apiGet(`/api/tournament-categories/standings?tournament_category_id=${tc.id}`);
+        enriched += absorbTeamsFromStandings(s);
+      } catch { /* la categoría no tiene zonas → ignorar */ }
+    });
+    await Promise.all(jobs);
+    if (enriched > 0) saveCache();
+    renderRegistrations();
+
+    statusEl.className = 'status ok';
+    statusEl.textContent = `✓ OK (${enriched} teams nuevos) · ${new Date().toLocaleTimeString('es-AR')}`;
+  } catch (err) {
+    showError(err, `/api/tournaments/${id}`);
+    statusEl.className = 'status error';
+    statusEl.textContent = '✗ Error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function showError(err, path) {
+  const box = document.getElementById('errorBox');
+  const msg = err.message || String(err);
+  let hint = '';
+  if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('CORS')) {
+    hint = `<ul>
+      <li><strong>CORS:</strong> el server bloquea requests desde este origen. Si abriste con doble-click, servilo desde http://localhost o desde el mismo dominio.</li>
+      <li><strong>Auth:</strong> puede faltar el Bearer token.</li>
+    </ul>`;
+  } else if (msg.includes('401') || msg.includes('403')) {
+    hint = `<p>Falta el Bearer token o expiró. Actualizalo en la barra superior.</p>`;
+  } else if (msg.includes('404')) {
+    hint = `<p>Torneo o recurso inexistente.</p>`;
+  }
+  box.innerHTML = `<h3>⚠ Error</h3><p><strong>Path:</strong> <code>${path}</code></p><p><strong>Error:</strong> <code>${msg}</code></p>${hint}`;
+  box.classList.remove('hidden');
+}
+
+// ============ PRELOAD ============
+function showPreloadModal() {
+  const from = prompt('¿Desde qué torneo ID barrer?', '1');
+  if (from === null) return;
+  const to = prompt('¿Hasta qué torneo ID barrer?', document.getElementById('tournamentId').value || '20');
+  if (to === null) return;
+  const fromN = parseInt(from), toN = parseInt(to);
+  if (isNaN(fromN) || isNaN(toN) || fromN > toN) { alert('IDs inválidos'); return; }
+  runPreload(fromN, toN);
+}
+
+async function runPreload(fromId, toId) {
+  saveToken(); saveBase();
+  preloadCancelled = false;
+  const overlay = document.getElementById('progressOverlay');
+  const statusEl = document.getElementById('progressStatus');
+  const barEl = document.getElementById('progressBar');
+  const cT = document.getElementById('counterTournaments');
+  const cC = document.getElementById('counterCats');
+  const cN = document.getElementById('counterTeams');
+  const cE = document.getElementById('counterErrors');
+  document.getElementById('closePreloadBtn').classList.add('hidden');
+  document.getElementById('cancelPreloadBtn').classList.remove('hidden');
+  overlay.classList.remove('hidden');
+
+  let tCount = 0, cCount = 0, tNew = 0, errs = 0;
+  const totalT = toId - fromId + 1;
+
+  for (let tid = fromId; tid <= toId; tid++) {
+    if (preloadCancelled) break;
+    statusEl.textContent = `Torneo #${tid}...`;
+    try {
+      const t = await apiGet(`/api/tournaments/${tid}`);
+      tCount++; cT.textContent = tCount;
+      const tcIds = (t.data?.categories || []).map(c => c.id);
+      for (const tcId of tcIds) {
+        if (preloadCancelled) break;
+        statusEl.textContent = `Torneo #${tid} · categoría ${tcId}...`;
+        try {
+          const s = await apiGet(`/api/tournament-categories/standings?tournament_category_id=${tcId}`);
+          const added = absorbTeamsFromStandings(s);
+          cCount++; cC.textContent = cCount;
+          tNew += added; cN.textContent = tNew;
+        } catch (e) {
+          errs++; cE.textContent = errs;
+        }
+      }
+    } catch (e) {
+      errs++; cE.textContent = errs;
+    }
+    barEl.style.width = Math.round(((tid - fromId + 1) / totalT) * 100) + '%';
+  }
+
+  saveCache();
+  statusEl.textContent = preloadCancelled ? '⚠ Cancelado por el usuario.' : `✓ Terminado. ${tNew} teams nuevos en el cache (total: ${Object.keys(teamCache).length}).`;
+  document.getElementById('cancelPreloadBtn').classList.add('hidden');
+  document.getElementById('closePreloadBtn').classList.remove('hidden');
+  if (raw) renderRegistrations();
+}
+function cancelPreload() { preloadCancelled = true; }
+function closePreloadModal() { document.getElementById('progressOverlay').classList.add('hidden'); }
+
+// ============ RENDER ============
+function fmtDate(iso, withTime = false) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  const opts = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  if (withTime) { opts.hour = '2-digit'; opts.minute = '2-digit'; }
+  return d.toLocaleDateString('es-AR', opts);
+}
+function fmtDateRange(from, to) {
+  const f = new Date(from), t = new Date(to);
+  const yearOpts = { day: '2-digit', month: 'short', year: 'numeric' };
+  if (f.getMonth() === t.getMonth() && f.getFullYear() === t.getFullYear()) {
+    return `${f.getDate().toString().padStart(2,'0')}–${t.toLocaleDateString('es-AR', yearOpts)}`;
+  }
+  return `${f.toLocaleDateString('es-AR', { day:'2-digit', month:'short' })} – ${t.toLocaleDateString('es-AR', yearOpts)}`;
+}
+
+function renderHeader() {
+  const d = raw.data;
+  document.getElementById('t-name').textContent = d.nombre || 'Torneo sin nombre';
+  document.getElementById('t-desc').textContent = d.descripcion || '';
+  const estadoClass = 'estado-' + (d.estado || '').replace(/\s+/g, '-');
+  const meta = document.getElementById('t-meta');
+  meta.innerHTML = '';
+  [
+    { html: `📅 ${fmtDateRange(d.fecha_inicio, d.fecha_fin)}`, cls: '' },
+    { html: `Estado: ${d.estado || '—'}`, cls: estadoClass },
+    { html: `Double points: ${d.double_points ? '✓ Sí' : '✗ No'}`, cls: '' },
+    { html: `ID: #${d.id}`, cls: '' },
+  ].forEach(p => {
+    const b = document.createElement('span');
+    b.className = 'badge ' + p.cls;
+    b.innerHTML = p.html;
+    meta.appendChild(b);
+  });
+}
+
+function renderKpis() {
+  const totalCats = cats.length;
+  const totalRegs = cats.reduce((s, c) => s + c.registrations.length, 0);
+  const totalCupo = cats.reduce((s, c) => s + c.cupo, 0);
+  const openCats = cats.filter(c => c.inscripcion_abierta).length;
+  const damasRegs = cats.filter(c => c.category.gender === 'damas').reduce((s, c) => s + c.registrations.length, 0);
+  const cabRegs = totalRegs - damasRegs;
+  const ocupPct = totalCupo ? Math.round((totalRegs / totalCupo) * 100) : 0;
+  const kpiEl = document.getElementById('kpis');
+  kpiEl.innerHTML = '';
+  [
+    { val: totalCats, lbl: 'Categorías', cls: '' },
+    { val: totalRegs, lbl: 'Inscriptos totales', cls: 'accent' },
+    { val: cabRegs, lbl: 'Caballeros', cls: 'accent' },
+    { val: damasRegs, lbl: 'Damas', cls: 'damas-c' },
+    { val: totalCupo, lbl: 'Cupo total', cls: '' },
+    { val: ocupPct + '%', lbl: 'Ocupación', cls: 'success' },
+    { val: openCats, lbl: 'Inscripción abierta', cls: 'success' },
+  ].forEach(k => {
+    const d = document.createElement('div');
+    d.className = 'kpi ' + k.cls;
+    d.innerHTML = `<div class="val">${k.val}</div><div class="lbl">${k.lbl}</div>`;
+    kpiEl.appendChild(d);
+  });
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  const el = document.getElementById('th-' + key);
+  if (el) el.classList.add('sorted');
+  renderTable();
+}
+function barClass(pct) { if (pct >= 90) return 'full'; if (pct >= 50) return 'med'; return 'low'; }
+
+function renderTable() {
+  if (!cats.length) return;
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const gender = document.getElementById('genderFilter').value;
+  const openF = document.getElementById('openFilter').value;
+  let rows = cats.map(c => ({
+    name: c.category.name, gender: c.category.gender, rank: c.category.rank,
+    inscriptions: c.registrations.length, cupo: c.cupo, open: c.inscripcion_abierta,
+    format: c.match_format, id: c.id,
+  }));
+  if (search) rows = rows.filter(r => r.name.toLowerCase().includes(search) || r.gender.toLowerCase().includes(search));
+  if (gender) rows = rows.filter(r => r.gender === gender);
+  if (openF === 'open') rows = rows.filter(r => r.open);
+  if (openF === 'closed') rows = rows.filter(r => !r.open);
+  rows.sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (typeof av === 'boolean') { av = av ? 1 : 0; bv = bv ? 1 : 0; }
+    if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
+    return (av - bv) * sortDir;
+  });
+  const tbody = document.getElementById('catBody');
+  tbody.innerHTML = '';
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">Sin coincidencias.</td></tr>';
+  } else {
+    rows.forEach(r => {
+      const pct = r.cupo ? Math.round((r.inscriptions / r.cupo) * 100) : 0;
+      const barW = Math.min(pct, 100);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${r.name}</strong></td>
+        <td><span class="pill ${r.gender}">${r.gender}</span></td>
+        <td><span class="reg-count">${r.inscriptions}</span></td>
+        <td><span class="cupo-num">${r.cupo}</span></td>
+        <td><span class="bar-wrap"><span class="bar-fill ${barClass(pct)}" style="width:${barW}%"></span></span><span class="pct-label">${pct}%</span></td>
+        <td><span class="pill ${r.open ? 'open' : 'closed'}">${r.open ? 'Abierta' : 'Cerrada'}</span></td>
+        <td class="format-cell">${r.format.replace(/_/g,' ')}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  const totalRegs = cats.reduce((s, c) => s + c.registrations.length, 0);
+  document.getElementById('caption').textContent = `${rows.length} de ${cats.length} categorías · ${totalRegs} inscripciones totales`;
+}
+
+function renderPlayers(teamId) {
+  const t = teamCache[teamId];
+  if (!t) {
+    return `<div class="players unknown">
+      <span class="team-tag">Team #${teamId}</span>
+      <span class="p-name">— sin datos —</span>
+      <span class="p-dni">Precargá el cache para resolver</span>
+    </div>`;
+  }
+  return `<div class="players">
+    <span class="team-tag">Team #${teamId}</span>
+    <span class="p-name">${t.p1 || '—'}</span>
+    <span class="p-dni">DNI ${t.dni1 || '—'}</span>
+    <span class="p-name" style="margin-top:2px">${t.p2 || '—'}</span>
+    <span class="p-dni">DNI ${t.dni2 || '—'}</span>
+  </div>`;
+}
+
+function renderRegistrations() {
+  const regBody = document.getElementById('regBody');
+  regBody.innerHTML = '';
+  const search = (document.getElementById('regSearch')?.value || '').toLowerCase();
+  const resolvedF = document.getElementById('regResolvedFilter')?.value || '';
+
+  let allRegs = [];
+  cats.forEach(c => c.registrations.forEach(r => allRegs.push({ ...r, cat: c.category })));
+
+  if (resolvedF === 'resolved') allRegs = allRegs.filter(r => teamCache[r.team_id]);
+  if (resolvedF === 'unresolved') allRegs = allRegs.filter(r => !teamCache[r.team_id]);
+  if (search) {
+    allRegs = allRegs.filter(r => {
+      const t = teamCache[r.team_id];
+      const hay = [r.cat.name, r.team_id, t?.p1, t?.p2, t?.dni1, t?.dni2].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(search);
+    });
+  }
+  allRegs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  if (allRegs.length === 0) {
+    regBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Sin inscripciones para mostrar.</td></tr>';
+    return;
+  }
+
+  allRegs.forEach(r => {
+    const tr = document.createElement('tr');
+    const problems = r.schedule_problems ? `<span class="schedule-cell">${r.schedule_problems}</span>` : `<span class="empty-cell">—</span>`;
+    tr.innerHTML = `
+      <td class="mono">#${r.id}</td>
+      <td><strong>${r.cat.name}</strong> <span class="pill ${r.cat.gender}" style="margin-left:4px">${r.cat.gender}</span></td>
+      <td>${renderPlayers(r.team_id)}</td>
+      <td><span class="pill ${r.estado}">${r.estado}</span></td>
+      <td>${problems}</td>
+      <td class="mono" style="white-space:nowrap">${fmtDate(r.created_at, true)}</td>
+    `;
+    regBody.appendChild(tr);
+  });
+}
+
+function renderAll() {
+  cats = raw.data.categories || [];
+  cats.sort((a, b) => a.category.rank - b.category.rank);
+  renderHeader();
+  renderKpis();
+  renderTable();
+  renderRegistrations();
+  document.title = `${raw.data.nombre} · Circuito PM`;
+}
+
+document.getElementById('baseUrl').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
+document.getElementById('tournamentId').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
+document.getElementById('bearerToken').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
+
+loadFromStorage();
+fetchTournament();
+</script>
+</body>
+</html>
