@@ -28,6 +28,8 @@
     --caballeros-bg: rgba(88, 166, 255, 0.15);
     --damas: #db61a2;
     --damas-bg: rgba(219, 97, 162, 0.15);
+    --login-green: #3ddc84;
+    --login-green-hover: #2fc470;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--bg-primary); }
@@ -35,6 +37,74 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
     color: var(--text-primary); padding: 20px; font-size: 13px; line-height: 1.5; min-height: 100vh;
   }
+
+  /* ============ LOGIN GATE ============ */
+  #loginGate {
+    position: fixed; inset: 0; z-index: 9999;
+    background: radial-gradient(ellipse at top, #0f1a17 0%, #0d1117 60%);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .login-card {
+    background: var(--bg-secondary); border: 1px solid var(--border-default);
+    border-radius: 14px; padding: 40px 44px; width: 100%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: loginIn 0.4s ease-out;
+  }
+  @keyframes loginIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .login-icon {
+    display: flex; justify-content: center; margin-bottom: 18px;
+  }
+  .login-icon-inner {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(255, 165, 0, 0.12); display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .login-card h1 {
+    text-align: center; font-size: 20px; font-weight: 800; letter-spacing: 1.5px;
+    margin-bottom: 8px; color: var(--text-primary);
+  }
+  .login-card .subtitle {
+    text-align: center; font-size: 13px; color: var(--text-secondary); margin-bottom: 28px;
+  }
+  .login-field { margin-bottom: 16px; }
+  .login-field label {
+    display: block; font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .login-field input {
+    width: 100%; padding: 12px 14px; background: var(--bg-tertiary);
+    border: 1px solid var(--border-default); border-radius: 8px;
+    color: var(--text-primary); font-size: 14px; font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .login-field input:focus {
+    outline: none; border-color: var(--login-green); background: var(--bg-primary);
+  }
+  .login-btn {
+    width: 100%; padding: 13px; background: var(--login-green); color: #0a1e13;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 700;
+    cursor: pointer; margin-top: 8px; transition: background 0.15s, transform 0.05s;
+  }
+  .login-btn:hover { background: var(--login-green-hover); }
+  .login-btn:active { transform: translateY(1px); }
+  .login-btn:disabled { opacity: 0.6; cursor: wait; }
+  .login-footer {
+    text-align: center; margin-top: 22px; font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; color: var(--text-muted);
+  }
+  .login-error {
+    background: var(--danger-bg); border: 1px solid rgba(248,81,73,0.3);
+    color: var(--danger); padding: 8px 12px; border-radius: 6px; font-size: 12px;
+    text-align: center; margin-top: 12px;
+  }
+
+  /* LOGOUT BUTTON */
+  .logout-btn {
+    padding: 6px 12px; background: var(--bg-tertiary); border: 1px solid var(--border-default);
+    border-radius: 6px; color: var(--text-secondary); font-size: 11px; cursor: pointer;
+    transition: all 0.15s; font-family: inherit;
+  }
+  .logout-btn:hover { background: var(--danger-bg); color: var(--danger); border-color: rgba(248,81,73,0.4); }
 
   /* API CONTROL BAR */
   .api-bar {
@@ -236,10 +306,36 @@
     .api-bar input.base, .api-bar input.token { width: 100%; }
     .header h1 { font-size: 16px; }
     .kpi .val { font-size: 22px; }
+    .login-card { padding: 32px 28px; }
   }
 </style>
 </head>
 <body>
+
+<!-- ============ LOGIN GATE ============ -->
+<div id="loginGate">
+  <div class="login-card">
+    <div class="login-icon"><div class="login-icon-inner">🔒</div></div>
+    <h1>CIRCUITO PM</h1>
+    <div class="subtitle">Ingresá con tu usuario para ver el panel.</div>
+    <form id="loginForm" autocomplete="off">
+      <div class="login-field">
+        <label for="loginUser">USUARIO</label>
+        <input type="text" id="loginUser" autocomplete="off" spellcheck="false" autofocus/>
+      </div>
+      <div class="login-field">
+        <label for="loginPass">CONTRASEÑA</label>
+        <input type="password" id="loginPass" autocomplete="off"/>
+      </div>
+      <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
+      <div id="loginError" class="login-error hidden"></div>
+    </form>
+    <div class="login-footer">FEDERICO OLEGO</div>
+  </div>
+</div>
+
+<!-- ============ APP (oculta hasta login) ============ -->
+<div id="appRoot" class="hidden">
 
 <!-- API CONTROL -->
 <div class="api-bar">
@@ -250,6 +346,7 @@
   <label>Bearer Token</label>
   <input type="password" id="bearerToken" placeholder="eyJhbGci..." class="token"/>
   <button id="fetchBtn" onclick="fetchTournament()">🔄 Cargar</button>
+  <button class="secondary" onclick="logout()" style="margin-left:auto">🚪 Salir</button>
   <span class="status" id="apiStatus">Listo</span>
 </div>
 
@@ -348,13 +445,81 @@
   </div>
 </div>
 
+</div><!-- /#appRoot -->
+
 <script>
+// ============ LOGIN GATE ============
+// SHA-256 de "folego:FedePM10!" — NO es seguridad real (cliente-side, cualquiera puede
+// hacer fuerza bruta sobre este hash). Sirve como cortina para casuales/bots.
+const AUTH_HASH = 'abb4f04275be6363adddb2edf8852d83f7cfce79795251facdaf660058e8c533';
+const LS_AUTH = 'circuitopm_auth_v1';
+const AUTH_TTL_MS = 1000 * 60 * 60 * 24 * 7; // sesión válida 7 días
+
+async function sha256Hex(str) {
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function isAuthed() {
+  try {
+    const raw = localStorage.getItem(LS_AUTH);
+    if (!raw) return false;
+    const { hash, ts } = JSON.parse(raw);
+    if (hash !== AUTH_HASH) return false;
+    if (Date.now() - ts > AUTH_TTL_MS) return false;
+    return true;
+  } catch { return false; }
+}
+
+function showApp() {
+  document.getElementById('loginGate').classList.add('hidden');
+  document.getElementById('appRoot').classList.remove('hidden');
+  loadFromStorage();
+  fetchTournament();
+}
+
+function logout() {
+  localStorage.removeItem(LS_AUTH);
+  location.reload();
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginError');
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  errEl.classList.add('hidden');
+  btn.disabled = true; btn.textContent = 'Verificando...';
+  try {
+    const hash = await sha256Hex(`${user}:${pass}`);
+    if (hash === AUTH_HASH) {
+      localStorage.setItem(LS_AUTH, JSON.stringify({ hash, ts: Date.now() }));
+      showApp();
+    } else {
+      errEl.textContent = 'Usuario o contraseña incorrectos.';
+      errEl.classList.remove('hidden');
+      document.getElementById('loginPass').value = '';
+      document.getElementById('loginPass').focus();
+    }
+  } catch (err) {
+    errEl.textContent = 'Error verificando credenciales.';
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+});
+
+// Auto-login si hay sesión válida
+if (isAuthed()) { showApp(); }
+
 // ============ STATE ============
 let raw = null;
 let cats = [];
 let sortKey = 'rank';
 let sortDir = 1;
-let teamCache = {}; // { teamId: {player1, player2, dni1, dni2} }
+let teamCache = {};
 let preloadCancelled = false;
 
 // ============ LOCALSTORAGE ============
@@ -452,7 +617,6 @@ async function fetchTournament() {
     renderAll();
     document.getElementById('mainContent').classList.remove('hidden');
 
-    // Enriquecer con standings de este torneo (por si ya se sortearon zonas)
     statusEl.innerHTML = '<span class="spinner"></span>Enriqueciendo equipos...';
     let enriched = 0;
     const jobs = raw.data.categories.map(async tc => {
@@ -742,12 +906,15 @@ function renderAll() {
   document.title = `${raw.data.nombre} · Circuito PM`;
 }
 
-document.getElementById('baseUrl').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
-document.getElementById('tournamentId').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
-document.getElementById('bearerToken').addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
-
-loadFromStorage();
-fetchTournament();
+// Los listeners de la app se registran cuando ya está visible
+document.addEventListener('DOMContentLoaded', () => {
+  const bu = document.getElementById('baseUrl');
+  const ti = document.getElementById('tournamentId');
+  const bt = document.getElementById('bearerToken');
+  if (bu) bu.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
+  if (ti) ti.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
+  if (bt) bt.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
+});
 </script>
 </body>
 </html>
