@@ -511,8 +511,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
-// Auto-login si hay sesión válida
-if (isAuthed()) { showApp(); }
+// (El auto-login se dispara en DOMContentLoaded, al final del script,
+//  para asegurar que todas las declaraciones `let` de abajo estén inicializadas
+//  antes de que showApp() → loadFromStorage() intente escribir en `teamCache`.)
 
 // ============ STATE ============
 let raw = null;
@@ -527,10 +528,13 @@ const LS_TOKEN = 'circuitopm_token';
 const LS_CACHE = 'circuitopm_team_cache';
 const LS_CACHE_DATE = 'circuitopm_cache_date';
 const LS_BASE = 'circuitopm_base_url';
+const LS_TID = 'circuitopm_tournament_id';
 
 function loadFromStorage() {
   document.getElementById('bearerToken').value = localStorage.getItem(LS_TOKEN) || '';
   document.getElementById('baseUrl').value = localStorage.getItem(LS_BASE) || 'https://circuitopm.ar';
+  const savedTid = localStorage.getItem(LS_TID);
+  if (savedTid) document.getElementById('tournamentId').value = savedTid;
   try {
     teamCache = JSON.parse(localStorage.getItem(LS_CACHE) || '{}');
   } catch { teamCache = {}; }
@@ -538,6 +542,7 @@ function loadFromStorage() {
 }
 function saveToken() { localStorage.setItem(LS_TOKEN, document.getElementById('bearerToken').value.trim()); }
 function saveBase() { localStorage.setItem(LS_BASE, document.getElementById('baseUrl').value.trim()); }
+function saveTid() { localStorage.setItem(LS_TID, document.getElementById('tournamentId').value.trim()); }
 function saveCache() {
   localStorage.setItem(LS_CACHE, JSON.stringify(teamCache));
   localStorage.setItem(LS_CACHE_DATE, new Date().toISOString());
@@ -569,7 +574,11 @@ function apiBase() { return document.getElementById('baseUrl').value.trim().repl
 async function apiGet(path) {
   const url = apiBase() + path;
   const res = await fetch(url, { headers: apiHeaders() });
-  if (!res.ok) throw new Error(`HTTP ${res.status} en ${path}`);
+  if (!res.ok) {
+    const err = new Error(`HTTP ${res.status} en ${path}`);
+    err.status = res.status;
+    throw err;
+  }
   return res.json();
 }
 
@@ -597,7 +606,7 @@ function absorbTeamsFromStandings(standingsData) {
 
 // ============ MAIN FETCH ============
 async function fetchTournament() {
-  saveToken(); saveBase();
+  saveToken(); saveBase(); saveTid();
   const id = document.getElementById('tournamentId').value.trim();
   if (!id) return;
 
@@ -643,15 +652,16 @@ async function fetchTournament() {
 function showError(err, path) {
   const box = document.getElementById('errorBox');
   const msg = err.message || String(err);
+  const status = err.status;
   let hint = '';
   if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('CORS')) {
     hint = `<ul>
       <li><strong>CORS:</strong> el server bloquea requests desde este origen. Si abriste con doble-click, servilo desde http://localhost o desde el mismo dominio.</li>
       <li><strong>Auth:</strong> puede faltar el Bearer token.</li>
     </ul>`;
-  } else if (msg.includes('401') || msg.includes('403')) {
-    hint = `<p>Falta el Bearer token o expiró. Actualizalo en la barra superior.</p>`;
-  } else if (msg.includes('404')) {
+  } else if (status === 401 || status === 403) {
+    hint = `<p><strong>Bearer token inválido o expirado.</strong> Pegá uno nuevo en la barra superior y volvé a hacer clic en <em>Cargar</em>.</p>`;
+  } else if (status === 404) {
     hint = `<p>Torneo o recurso inexistente.</p>`;
   }
   box.innerHTML = `<h3>⚠ Error</h3><p><strong>Path:</strong> <code>${path}</code></p><p><strong>Error:</strong> <code>${msg}</code></p>${hint}`;
@@ -906,7 +916,17 @@ function renderAll() {
   document.title = `${raw.data.nombre} · Circuito PM`;
 }
 
-// Los listeners de la app se registran cuando ya está visible
+// Loggers globales — para que cualquier error silencioso quede visible en consola
+window.addEventListener('error', e => {
+  console.error('[CircuitoPM] Uncaught error:', e.error || e.message, e);
+});
+window.addEventListener('unhandledrejection', e => {
+  console.error('[CircuitoPM] Unhandled promise rejection:', e.reason);
+});
+
+// Los listeners de la app se registran cuando ya está visible.
+// El auto-login también corre acá, después de que TODAS las declaraciones `let`
+// (raw, cats, teamCache, etc.) están inicializadas.
 document.addEventListener('DOMContentLoaded', () => {
   const bu = document.getElementById('baseUrl');
   const ti = document.getElementById('tournamentId');
@@ -914,6 +934,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (bu) bu.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
   if (ti) ti.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
   if (bt) bt.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
+
+  // Auto-login si hay sesión válida
+  if (isAuthed()) { showApp(); }
 });
 </script>
 </body>
