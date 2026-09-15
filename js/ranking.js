@@ -254,9 +254,13 @@ function renderRanking() {
     const fullName = `${(p.nombre || '').trim()} ${(p.apellido || '').trim()}`.trim() || '—';
 
     const bestInst = maxInstance(p.pointsHistory);
-    const bestInstCell = bestInst
-      ? `<span class="pill ${positionPillClass(bestInst)}">${bestInst}</span>`
-      : `<span class="empty-cell">—</span>`;
+    let bestInstCell;
+    if (bestInst) {
+      const suffix = bestInst.count > 1 ? ` (${bestInst.count})` : '';
+      bestInstCell = `<span class="pill ${positionPillClass(bestInst.label)}">${bestInst.label}${suffix}</span>`;
+    } else {
+      bestInstCell = `<span class="empty-cell">—</span>`;
+    }
 
     const mainRow = `
       <tr class="rank-row ${isExpanded ? 'expanded' : ''}" data-dni="${dni}" onclick="toggleRankingRow('${dni}')">
