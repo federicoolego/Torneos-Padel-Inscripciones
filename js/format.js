@@ -39,23 +39,32 @@ function positionPillClass(position) {
 
 /**
  * Dado el pointsHistory de un jugador, devuelve la mejor instancia alcanzada
- * según INSTANCE_ORDER (Campeón > Subcampeón > … > Zona). null si no jugó.
+ * según INSTANCE_ORDER (Campeón > Subcampeón > … > Zona) junto con la cantidad
+ * de veces que la alcanzó. Devuelve `null` si no jugó ningún torneo.
+ *
+ * Retorno: { label: string, count: number } | null
  */
 function maxInstance(pointsHistory) {
   if (!pointsHistory || !pointsHistory.length) return null;
   let bestIdx = INSTANCE_ORDER.length;
+  let count = 0;
   pointsHistory.forEach(h => {
     const pos = (h.position || '').trim().toLowerCase();
     if (!pos) return;
     for (let i = 0; i < INSTANCE_ORDER.length; i++) {
       const target = INSTANCE_ORDER[i].toLowerCase();
       if (pos === target || pos.startsWith(target)) {
-        if (i < bestIdx) bestIdx = i;
+        if (i < bestIdx) {
+          bestIdx = i;
+          count = 1;           // nueva mejor instancia → reseteo el contador
+        } else if (i === bestIdx) {
+          count++;             // otra ocurrencia de la mejor actual
+        }
         return;
       }
     }
   });
-  return bestIdx < INSTANCE_ORDER.length ? INSTANCE_ORDER[bestIdx] : null;
+  return bestIdx < INSTANCE_ORDER.length ? { label: INSTANCE_ORDER[bestIdx], count } : null;
 }
 
 /**
