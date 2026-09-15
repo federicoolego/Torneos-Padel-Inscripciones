@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Detalle de Torneo · Circuito PM</title>
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;🏆🎾&lt;/text&gt;&lt;/svg&gt;">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ============ LOGIN GATE ============ -->
+<div id="loginGate">
+  <div class="login-card">
+    <div class="login-icon"><div class="login-icon-inner">🔒</div></div>
+    <h1>CIRCUITO PM</h1>
+    <div class="subtitle">Ingresá con tu usuario para ver el panel.</div>
+    <form id="loginForm" autocomplete="off">
+      <div class="login-field">
+        <label for="loginUser">USUARIO</label>
+        <input type="text" id="loginUser" autocomplete="off" spellcheck="false" autofocus/>
+      </div>
+      <div class="login-field">
+        <label for="loginPass">CONTRASEÑA</label>
+        <input type="password" id="loginPass" autocomplete="off"/>
+      </div>
+      <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
+      <div id="loginError" class="login-error hidden"></div>
+    </form>
+    <div class="login-footer">FEDERICO OLEGO</div>
+  </div>
+</div>
+
+<!-- ============ APP (oculta hasta login) ============ -->
+<div id="appRoot" class="hidden">
+
+<!-- TABS: primero de todo, siempre visibles -->
+<div class="tabs" role="tablist">
+  <button class="tab active" id="tab-tournament" role="tab" onclick="switchView('tournament')">
+    <span class="tab-icon">🏆</span> Torneo
+  </button>
+  <button class="tab" id="tab-ranking" role="tab" onclick="switchView('ranking')">
+    <span class="tab-icon">📊</span> Ranking
+  </button>
+</div>
+
+<!-- API CONTROL (se oculta en vista Ranking) -->
+<div class="api-bar" id="apiBar">
+  <label>API</label>
+  <input type="text" id="baseUrl" value="https://circuitopm.ar" spellcheck="false" class="base"/>
+  <label>Torneo ID</label>
+  <input type="number" id="tournamentId" value="16" class="small" min="1"/>
+  <label>Bearer Token</label>
+  <input type="password" id="bearerToken" placeholder="eyJhbGci..." class="token"/>
+  <button id="fetchBtn" onclick="fetchTournament()">🔄 Cargar</button>
+  <button class="secondary" onclick="logout()" style="margin-left:auto">🚪 Salir</button>
+  <span class="status" id="apiStatus">Listo</span>
+</div>
+
+<!-- CACHE BAR (sólo vista torneo) -->
+<div class="cache-bar" id="cacheBar">
+  <span class="cache-info">💾 Cache de equipos: <strong id="cacheCount">0</strong> teams · última precarga: <strong id="cacheDate">nunca</strong></span>
+  <button class="secondary" onclick="showPreloadModal()">⚡ Precargar equipos</button>
+  <button class="secondary" onclick="clearCache()">🗑 Vaciar cache</button>
+</div>
+
+<div id="errorBox" class="error-box hidden"></div>
+
+<!-- ============ VISTA TORNEO ============ -->
+<div id="mainContent" class="hidden">
+  <div class="header">
+    <h1>🏆 <span id="t-name">—</span></h1>
+    <div class="meta" id="t-meta"></div>
+    <div class="desc" id="t-desc"></div>
+  </div>
+
+  <div id="kpis" class="kpis"></div>
+
+  <div class="section-title">Categorías</div>
+  <div class="filter-row">
+    <input type="text" id="searchInput" placeholder="🔎 Buscar categoría..." oninput="renderTable()"/>
+    <select id="genderFilter" onchange="renderTable()">
+      <option value="">Todos los géneros</option>
+      <option value="caballeros">Caballeros</option>
+      <option value="damas">Damas</option>
+    </select>
+    <select id="openFilter" onchange="renderTable()">
+      <option value="">Toda inscripción</option>
+      <option value="open">Sólo abiertas</option>
+      <option value="closed">Sólo cerradas</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortBy('name')" id="th-name">Categoría <span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('gender')" id="th-gender">Género <span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('inscriptions')" id="th-inscriptions">Inscriptos <span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('cupo')" id="th-cupo">Cupo <span class="sort-icon">↕</span></th>
+          <th>Ocupación</th>
+          <th onclick="sortBy('open')" id="th-open">Inscripción <span class="sort-icon">↕</span></th>
+          <th>Formato</th>
+        </tr>
+      </thead>
+      <tbody id="catBody"></tbody>
+    </table>
+  </div>
+  <div class="caption" id="caption"></div>
+
+  <div class="section-title">Parejas inscriptas</div>
+  <div class="filter-row">
+    <input type="text" id="regSearch" placeholder="🔎 Buscar por jugador, DNI o categoría..." oninput="renderRegistrations()"/>
+    <select id="regResolvedFilter" onchange="renderRegistrations()">
+      <option value="">Todas</option>
+      <option value="resolved">Sólo con nombres</option>
+      <option value="unresolved">Sólo sin resolver</option>
+    </select>
+  </div>
+  <div class="reg-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Categoría</th>
+          <th>Pareja</th>
+          <th>Estado</th>
+          <th>Problemas de horario</th>
+          <th>Fecha inscripción</th>
+        </tr>
+      </thead>
+      <tbody id="regBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ VISTA RANKING (independiente del torneo) ============ -->
+<div id="rankingContent" class="hidden">
+  <div class="ranking-header">
+    <h1>📊 Ranking <span class="cat-label" id="rank-cat-name">—</span></h1>
+    <span class="badge" id="rank-cat-gender-badge" style="display:none"></span>
+    <span class="badge" id="rank-cat-id-badge" style="display:none"></span>
+  </div>
+
+  <div id="rankKpis" class="kpis"></div>
+
+  <div class="section-title">Filtros</div>
+  <div class="filter-row">
+    <select id="rankCategorySelect" onchange="onRankCategoryChange()" disabled>
+      <option value="">Cargando categorías…</option>
+    </select>
+    <input type="text" id="rankSearch" placeholder="🔎 Buscar jugador o DNI..." oninput="renderRanking()" disabled/>
+    <button id="rankRefreshBtn" onclick="fetchRanking(currentRankingCategoryId, true)" disabled>🔄 Refrescar</button>
+    <button id="rankReloadCatsBtn" onclick="fetchCategoriesList(true)" title="Recargar el listado de categorías">↻ Recargar cats</button>
+    <button id="rankExpandAllBtn" onclick="toggleAllRankingRows()" disabled>⤢ Expandir todo</button>
+    <span class="filter-hint" id="rankUpdatedHint"></span>
+  </div>
+
+  <div id="rankingTableContainer">
+    <div class="ranking-empty" id="rankingEmpty">
+      <div class="icon">🎾</div>
+      <strong>Elegí una categoría</strong>
+      <p>Usá el selector de arriba para ver el ranking.</p>
+    </div>
+  </div>
+  <div class="caption" id="rankCaption"></div>
+</div>
+
+<!-- PROGRESS MODAL -->
+<div id="progressOverlay" class="progress-overlay hidden">
+  <div class="progress-modal">
+    <h3>⚡ Precargando equipos desde torneos históricos</h3>
+    <div class="status-line" id="progressStatus">Iniciando...</div>
+    <div class="bar-container"><div class="bar-progress" id="progressBar" style="width:0%"></div></div>
+    <div class="counters">
+      <span>Torneos: <strong id="counterTournaments">0</strong></span>
+      <span>Categorías: <strong id="counterCats">0</strong></span>
+      <span>Teams nuevos: <strong id="counterTeams">0</strong></span>
+      <span>Errores: <strong id="counterErrors">0</strong></span>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="secondary" id="cancelPreloadBtn" onclick="cancelPreload()">Cancelar</button>
+      <button id="closePreloadBtn" onclick="closePreloadModal()" class="hidden">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#appRoot -->
+
+<!-- ============ SCRIPTS (orden importante) ============ -->
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/api.js"></script>
+<script src="js/format.js"></script>
+<script src="js/preload.js"></script>
+<script src="js/tournament.js"></script>
+<script src="js/ranking.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
