@@ -30,6 +30,15 @@
     --damas-bg: rgba(219, 97, 162, 0.15);
     --login-green: #3ddc84;
     --login-green-hover: #2fc470;
+    /* NEW: paleta ranking */
+    --gold: #f0b429;
+    --gold-bg: rgba(240, 180, 41, 0.15);
+    --silver: #c9d1d9;
+    --silver-bg: rgba(201, 209, 217, 0.12);
+    --bronze: #c17b3e;
+    --bronze-bg: rgba(193, 123, 62, 0.15);
+    --violet: #a371f7;
+    --violet-bg: rgba(163, 113, 247, 0.15);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--bg-primary); }
@@ -51,9 +60,7 @@
     animation: loginIn 0.4s ease-out;
   }
   @keyframes loginIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  .login-icon {
-    display: flex; justify-content: center; margin-bottom: 18px;
-  }
+  .login-icon { display: flex; justify-content: center; margin-bottom: 18px; }
   .login-icon-inner {
     width: 56px; height: 56px; border-radius: 50%;
     background: rgba(255, 165, 0, 0.12); display: flex; align-items: center; justify-content: center;
@@ -139,6 +146,26 @@
   .api-bar .status.ok { color: var(--success); }
   .api-bar .status.error { color: var(--danger); }
 
+  /* ============ TABS (NEW) ============ */
+  .tabs {
+    display: flex; gap: 4px; background: var(--bg-secondary);
+    border: 1px solid var(--border-default); border-radius: 10px;
+    padding: 4px; margin-bottom: 14px;
+  }
+  .tab {
+    flex: 1; padding: 10px 16px; background: transparent; border: none;
+    border-radius: 7px; color: var(--text-secondary); font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: all 0.15s;
+    font-family: inherit; display: flex; align-items: center;
+    justify-content: center; gap: 8px;
+  }
+  .tab:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .tab.active {
+    background: var(--bg-tertiary); color: var(--accent);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .tab .tab-icon { font-size: 15px; }
+
   /* CACHE BAR */
   .cache-bar {
     background: var(--bg-secondary); border: 1px solid var(--border-default);
@@ -189,6 +216,7 @@
   .kpi.accent .val { color: var(--accent); }
   .kpi.success .val { color: var(--success); }
   .kpi.damas-c .val { color: var(--damas); }
+  .kpi.gold .val { color: var(--gold); }
 
   /* SECTION */
   .section-title {
@@ -205,6 +233,16 @@
   .filter-row input:focus, .filter-row select:focus { outline: none; border-color: var(--accent); }
   .filter-row input { width: 220px; }
   .filter-row input::placeholder { color: var(--text-muted); }
+  .filter-row select { min-width: 180px; cursor: pointer; }
+  .filter-row select:disabled { opacity: 0.5; cursor: not-allowed; }
+  .filter-row button {
+    padding: 6px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-default);
+    border-radius: 6px; color: var(--text-secondary); font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .filter-row button:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); border-color: var(--accent-muted); }
+  .filter-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .filter-row .filter-hint { font-size: 11px; color: var(--text-muted); margin-left: auto; font-style: italic; }
 
   /* TABLES */
   .table-wrap { background: var(--bg-secondary); border: 1px solid var(--border-default); border-radius: 8px; overflow: hidden; }
@@ -218,6 +256,8 @@
   thead th .sort-icon { margin-left: 4px; opacity: 0.4; font-size: 10px; }
   thead th.sorted { color: var(--accent); }
   thead th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+  thead th.no-sort { cursor: default; }
+  thead th.no-sort:hover { background: var(--bg-tertiary); color: var(--text-secondary); }
   tbody tr { border-bottom: 1px solid var(--border-muted); transition: background 0.12s; }
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: var(--bg-hover); }
@@ -233,6 +273,19 @@
   .pill.inscripto, .pill.open { background: var(--success-bg); color: var(--success); border-color: rgba(63, 185, 80, 0.3); }
   .pill.closed, .pill.rechazado { background: var(--danger-bg); color: var(--danger); border-color: rgba(248, 81, 73, 0.3); }
   .pill.pendiente { background: var(--warning-bg); color: var(--warning); border-color: rgba(210, 153, 34, 0.3); }
+  /* NEW: pills posiciones ranking */
+  .pill.pos-campeon      { background: var(--gold-bg);    color: var(--gold);    border-color: rgba(240, 180, 41, 0.35); }
+  .pill.pos-subcampeon   { background: var(--silver-bg);  color: var(--silver);  border-color: rgba(201, 209, 217, 0.3); }
+  .pill.pos-semifinal    { background: var(--caballeros-bg); color: var(--caballeros); border-color: rgba(88, 166, 255, 0.3); }
+  .pill.pos-cuartos      { background: var(--success-bg); color: var(--success); border-color: rgba(63, 185, 80, 0.3); }
+  .pill.pos-octavos      { background: var(--violet-bg);  color: var(--violet);  border-color: rgba(163, 113, 247, 0.3); }
+  .pill.pos-zona         { background: var(--bg-tertiary); color: var(--text-secondary); border-color: var(--border-default); }
+  .pill.pos-otro         { background: var(--bg-tertiary); color: var(--text-muted); border-color: var(--border-default); }
+  .pill.doublepoints {
+    background: rgba(240, 180, 41, 0.12); color: var(--gold);
+    border-color: rgba(240, 180, 41, 0.4); margin-left: 4px;
+    font-family: "SF Mono", monospace; letter-spacing: 0;
+  }
 
   /* PLAYERS DISPLAY */
   .players { display: flex; flex-direction: column; gap: 2px; }
@@ -301,12 +354,99 @@
   .progress-modal .counters span { color: var(--text-muted); }
   .progress-modal .counters strong { color: var(--text-primary); font-family: "SF Mono", monospace; }
 
+  /* ============ RANKING (NEW) ============ */
+  .ranking-header {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border: 1px solid var(--border-default); border-radius: 10px;
+    padding: 18px 20px; margin-bottom: 18px;
+  }
+  .ranking-header h1 {
+    font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+    margin: 0;
+  }
+  .ranking-header .cat-label { color: var(--accent); }
+  .ranking-empty {
+    background: var(--bg-secondary); border: 1px dashed var(--border-default);
+    border-radius: 10px; padding: 40px 20px; text-align: center; color: var(--text-muted);
+  }
+  .ranking-empty .icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+  .ranking-empty p { font-size: 13px; margin-top: 6px; }
+
+  .rank-row { cursor: pointer; }
+  .rank-row.expanded { background: var(--bg-hover); }
+  .rank-row.expanded td { border-bottom-color: transparent; }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 32px; height: 32px; padding: 0 8px;
+    background: var(--bg-tertiary); border: 1px solid var(--border-default);
+    border-radius: 8px; font-weight: 700; font-size: 13px;
+    color: var(--text-secondary); font-variant-numeric: tabular-nums;
+  }
+  .rank-badge.gold   { background: var(--gold-bg);   color: var(--gold);   border-color: rgba(240, 180, 41, 0.4); }
+  .rank-badge.silver { background: var(--silver-bg); color: var(--silver); border-color: rgba(201, 209, 217, 0.35); }
+  .rank-badge.bronze { background: var(--bronze-bg); color: var(--bronze); border-color: rgba(193, 123, 62, 0.4); }
+  .rank-badge .medal { font-size: 16px; margin-right: 2px; }
+
+  .rank-points {
+    font-family: "SF Mono", monospace; font-weight: 700;
+    color: var(--accent); font-size: 15px;
+  }
+  .rank-tournaments {
+    display: inline-block; padding: 2px 8px; background: var(--bg-tertiary);
+    border: 1px solid var(--border-default); border-radius: 6px;
+    font-family: "SF Mono", monospace; font-size: 11px; color: var(--text-secondary);
+  }
+  .chevron {
+    display: inline-block; transition: transform 0.2s ease;
+    color: var(--text-muted); font-size: 10px;
+  }
+  .rank-row.expanded .chevron { transform: rotate(90deg); color: var(--accent); }
+
+  .rank-detail-row td { padding: 0; background: var(--bg-primary); }
+  .rank-detail-inner {
+    padding: 12px 24px 18px 62px; border-bottom: 2px solid var(--accent-muted);
+    animation: expandIn 0.2s ease-out;
+  }
+  @keyframes expandIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .rank-detail-inner .detail-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;
+  }
+  .history-table {
+    width: 100%; border-collapse: collapse; background: var(--bg-secondary);
+    border: 1px solid var(--border-default); border-radius: 6px; overflow: hidden;
+  }
+  .history-table th {
+    background: var(--bg-tertiary); padding: 8px 10px; font-size: 10px;
+    text-align: left; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.5px; font-weight: 600; cursor: default;
+  }
+  .history-table th:hover { background: var(--bg-tertiary); color: var(--text-muted); }
+  .history-table td { padding: 8px 10px; font-size: 12px; border-bottom: 1px solid var(--border-muted); }
+  .history-table tr:last-child td { border-bottom: none; }
+  .history-table tr:hover { background: transparent; }
+  .history-empty {
+    padding: 16px; text-align: center; color: var(--text-muted);
+    font-style: italic; font-size: 12px;
+  }
+  .history-points {
+    font-family: "SF Mono", monospace; font-weight: 700; color: var(--accent);
+  }
+  .history-date { font-family: "SF Mono", monospace; color: var(--text-secondary); font-size: 11px; }
+
   @media (max-width: 640px) {
     body { padding: 12px; }
     .api-bar input.base, .api-bar input.token { width: 100%; }
     .header h1 { font-size: 16px; }
     .kpi .val { font-size: 22px; }
     .login-card { padding: 32px 28px; }
+    .tab { padding: 8px 10px; font-size: 12px; }
+    .rank-detail-inner { padding: 12px 12px 18px 12px; }
+    .history-table { font-size: 11px; }
   }
 </style>
 </head>
@@ -350,8 +490,18 @@
   <span class="status" id="apiStatus">Listo</span>
 </div>
 
-<!-- CACHE BAR -->
-<div class="cache-bar">
+<!-- ============ TABS (NEW) ============ -->
+<div class="tabs" role="tablist">
+  <button class="tab active" id="tab-tournament" role="tab" onclick="switchView('tournament')">
+    <span class="tab-icon">🏆</span> Torneo
+  </button>
+  <button class="tab" id="tab-ranking" role="tab" onclick="switchView('ranking')">
+    <span class="tab-icon">📊</span> Ranking
+  </button>
+</div>
+
+<!-- CACHE BAR (sólo vista torneo) -->
+<div class="cache-bar" id="cacheBar">
   <span class="cache-info">💾 Cache de equipos: <strong id="cacheCount">0</strong> teams · última precarga: <strong id="cacheDate">nunca</strong></span>
   <button class="secondary" onclick="showPreloadModal()">⚡ Precargar equipos</button>
   <button class="secondary" onclick="clearCache()">🗑 Vaciar cache</button>
@@ -359,6 +509,7 @@
 
 <div id="errorBox" class="error-box hidden"></div>
 
+<!-- ============ VISTA TORNEO ============ -->
 <div id="mainContent" class="hidden">
   <div class="header">
     <h1>🏆 <span id="t-name">—</span></h1>
@@ -426,6 +577,37 @@
   </div>
 </div>
 
+<!-- ============ VISTA RANKING (NEW) ============ -->
+<div id="rankingContent" class="hidden">
+  <div class="ranking-header">
+    <h1>📊 Ranking <span class="cat-label" id="rank-cat-name">—</span></h1>
+    <span class="badge" id="rank-cat-gender-badge" style="display:none"></span>
+    <span class="badge" id="rank-cat-id-badge" style="display:none"></span>
+  </div>
+
+  <div id="rankKpis" class="kpis"></div>
+
+  <div class="section-title">Filtros</div>
+  <div class="filter-row">
+    <select id="rankCategorySelect" onchange="onRankCategoryChange()" disabled>
+      <option value="">Cargá primero un torneo…</option>
+    </select>
+    <input type="text" id="rankSearch" placeholder="🔎 Buscar jugador o DNI..." oninput="renderRanking()" disabled/>
+    <button id="rankRefreshBtn" onclick="fetchRanking(currentRankingCategoryId, true)" disabled>🔄 Refrescar</button>
+    <button id="rankExpandAllBtn" onclick="toggleAllRankingRows()" disabled>⤢ Expandir todo</button>
+    <span class="filter-hint" id="rankUpdatedHint"></span>
+  </div>
+
+  <div id="rankingTableContainer">
+    <div class="ranking-empty" id="rankingEmpty">
+      <div class="icon">🎾</div>
+      <strong>Sin datos de ranking</strong>
+      <p>Cargá un torneo con la barra superior y elegí una categoría para ver el ranking.</p>
+    </div>
+  </div>
+  <div class="caption" id="rankCaption"></div>
+</div>
+
 <!-- PROGRESS MODAL -->
 <div id="progressOverlay" class="progress-overlay hidden">
   <div class="progress-modal">
@@ -449,11 +631,9 @@
 
 <script>
 // ============ LOGIN GATE ============
-// SHA-256 de "folego:FedePM10!" — NO es seguridad real (cliente-side, cualquiera puede
-// hacer fuerza bruta sobre este hash). Sirve como cortina para casuales/bots.
 const AUTH_HASH = 'abb4f04275be6363adddb2edf8852d83f7cfce79795251facdaf660058e8c533';
 const LS_AUTH = 'circuitopm_auth_v1';
-const AUTH_TTL_MS = 1000 * 60 * 60 * 24 * 7; // sesión válida 7 días
+const AUTH_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
 async function sha256Hex(str) {
   const buf = new TextEncoder().encode(str);
@@ -511,10 +691,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
-// (El auto-login se dispara en DOMContentLoaded, al final del script,
-//  para asegurar que todas las declaraciones `let` de abajo estén inicializadas
-//  antes de que showApp() → loadFromStorage() intente escribir en `teamCache`.)
-
 // ============ STATE ============
 let raw = null;
 let cats = [];
@@ -522,6 +698,12 @@ let sortKey = 'rank';
 let sortDir = 1;
 let teamCache = {};
 let preloadCancelled = false;
+
+// NEW: state ranking + navegación
+let currentView = 'tournament';           // 'tournament' | 'ranking'
+let rankingCache = {};                    // { [categoryId]: { data, fetchedAt } }
+let currentRankingCategoryId = null;
+let rankingExpanded = new Set();          // DNIs abiertos
 
 // ============ LOCALSTORAGE ============
 const LS_TOKEN = 'circuitopm_token';
@@ -625,6 +807,9 @@ async function fetchTournament() {
     raw = data;
     renderAll();
     document.getElementById('mainContent').classList.remove('hidden');
+
+    // NEW: refrescar el selector de categorías del ranking cuando entra un torneo nuevo
+    populateRankingCategorySelect();
 
     statusEl.innerHTML = '<span class="spinner"></span>Enriqueciendo equipos...';
     let enriched = 0;
@@ -730,7 +915,7 @@ async function runPreload(fromId, toId) {
 function cancelPreload() { preloadCancelled = true; }
 function closePreloadModal() { document.getElementById('progressOverlay').classList.add('hidden'); }
 
-// ============ RENDER ============
+// ============ RENDER (torneo) ============
 function fmtDate(iso, withTime = false) {
   if (!iso) return '-';
   const d = new Date(iso);
@@ -796,7 +981,7 @@ function renderKpis() {
 function sortBy(key) {
   if (sortKey === key) sortDir *= -1;
   else { sortKey = key; sortDir = 1; }
-  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  document.querySelectorAll('#mainContent thead th').forEach(th => th.classList.remove('sorted'));
   const el = document.getElementById('th-' + key);
   if (el) el.classList.add('sorted');
   renderTable();
@@ -916,7 +1101,421 @@ function renderAll() {
   document.title = `${raw.data.nombre} · Circuito PM`;
 }
 
-// Loggers globales — para que cualquier error silencioso quede visible en consola
+// ============================================================
+// ============ NEW: NAVEGACIÓN Y VISTA RANKING ============
+// ============================================================
+
+function switchView(view) {
+  currentView = view;
+  document.getElementById('tab-tournament').classList.toggle('active', view === 'tournament');
+  document.getElementById('tab-ranking').classList.toggle('active', view === 'ranking');
+  document.getElementById('mainContent').classList.toggle('hidden', view !== 'tournament' || !raw);
+  document.getElementById('rankingContent').classList.toggle('hidden', view !== 'ranking');
+  document.getElementById('cacheBar').classList.toggle('hidden', view !== 'tournament');
+}
+
+/**
+ * Pobla el <select> de categorías del ranking a partir de `raw.data.categories`.
+ * Deduplica por `category.id` (el ID global, no el del tournament_category).
+ */
+function populateRankingCategorySelect() {
+  const sel = document.getElementById('rankCategorySelect');
+  if (!raw || !cats.length) {
+    sel.innerHTML = '<option value="">Cargá primero un torneo…</option>';
+    sel.disabled = true;
+    document.getElementById('rankSearch').disabled = true;
+    document.getElementById('rankRefreshBtn').disabled = true;
+    document.getElementById('rankExpandAllBtn').disabled = true;
+    return;
+  }
+
+  // dedup por category.id
+  const seen = new Map();
+  cats.forEach(tc => {
+    const c = tc.category;
+    if (c && c.id != null && !seen.has(c.id)) seen.set(c.id, c);
+  });
+  const options = Array.from(seen.values()).sort((a, b) => (a.rank || 0) - (b.rank || 0));
+
+  const prevSelected = currentRankingCategoryId;
+  sel.innerHTML = '<option value="">— Elegí una categoría —</option>' + options.map(c =>
+    `<option value="${c.id}" data-gender="${c.gender}" data-name="${c.name}">${c.name} (${c.gender})</option>`
+  ).join('');
+  sel.disabled = false;
+  document.getElementById('rankSearch').disabled = false;
+
+  // si la cat anterior sigue disponible, la mantengo; sino, reset
+  if (prevSelected && options.some(o => o.id === prevSelected)) {
+    sel.value = String(prevSelected);
+  } else {
+    currentRankingCategoryId = null;
+    rankingExpanded.clear();
+    renderRanking();
+  }
+}
+
+function onRankCategoryChange() {
+  const sel = document.getElementById('rankCategorySelect');
+  const val = sel.value ? Number(sel.value) : null;
+  currentRankingCategoryId = val;
+  rankingExpanded.clear();
+  if (val == null) {
+    renderRanking();
+    return;
+  }
+  const cached = rankingCache[val];
+  if (cached) {
+    renderRanking();
+    updateRankUpdatedHint();
+  } else {
+    fetchRanking(val, false);
+  }
+}
+
+async function fetchRanking(categoryId, forceRefresh = false) {
+  if (categoryId == null) return;
+  if (!forceRefresh && rankingCache[categoryId]) {
+    renderRanking();
+    updateRankUpdatedHint();
+    return;
+  }
+  saveToken(); saveBase();
+  const statusEl = document.getElementById('apiStatus');
+  const container = document.getElementById('rankingTableContainer');
+  const refreshBtn = document.getElementById('rankRefreshBtn');
+
+  statusEl.className = 'status loading';
+  statusEl.innerHTML = '<span class="spinner"></span>Cargando ranking...';
+  refreshBtn.disabled = true;
+
+  container.innerHTML = `<div class="ranking-empty">
+    <div class="icon"><span class="spinner"></span></div>
+    <strong>Cargando ranking de la categoría…</strong>
+  </div>`;
+
+  try {
+    const ts = Date.now();
+    const resp = await apiGet(`/api/tournament-categories/ranking?category_id=${categoryId}&_ts=${ts}`);
+    if (!resp || !Array.isArray(resp.data)) throw new Error('Respuesta inesperada del ranking');
+    rankingCache[categoryId] = { data: resp.data, fetchedAt: ts };
+    renderRanking();
+    updateRankUpdatedHint();
+    statusEl.className = 'status ok';
+    statusEl.textContent = `✓ Ranking OK · ${new Date().toLocaleTimeString('es-AR')}`;
+  } catch (err) {
+    showError(err, `/api/tournament-categories/ranking?category_id=${categoryId}`);
+    statusEl.className = 'status error';
+    statusEl.textContent = '✗ Error ranking';
+    container.innerHTML = `<div class="ranking-empty">
+      <div class="icon">⚠</div>
+      <strong>Error cargando el ranking.</strong>
+      <p>Revisá el mensaje de error en la barra superior.</p>
+    </div>`;
+  } finally {
+    refreshBtn.disabled = false;
+  }
+}
+
+function updateRankUpdatedHint() {
+  const hint = document.getElementById('rankUpdatedHint');
+  const cached = currentRankingCategoryId != null ? rankingCache[currentRankingCategoryId] : null;
+  if (!cached) { hint.textContent = ''; return; }
+  hint.textContent = `Actualizado: ${new Date(cached.fetchedAt).toLocaleTimeString('es-AR')}`;
+}
+
+/**
+ * Devuelve la clase de pill según el nombre de la posición.
+ * (Trabaja lower-case para tolerar variantes.)
+ */
+function positionPillClass(position) {
+  const p = (position || '').toLowerCase();
+  if (p.includes('campe') && !p.includes('sub')) return 'pos-campeon';
+  if (p.includes('subcampe')) return 'pos-subcampeon';
+  if (p.includes('semifinal')) return 'pos-semifinal';
+  if (p.includes('cuartos')) return 'pos-cuartos';
+  if (p.includes('octavos')) return 'pos-octavos';
+  if (p === 'zona' || p.startsWith('zona')) return 'pos-zona';
+  return 'pos-otro';
+}
+
+/**
+ * Calcula el "rank" con empates estilo olímpico (1,2,3,3,5).
+ * Devuelve el array de jugadores con `_rank` agregado, ya ordenado por totalPoints desc.
+ */
+function computeRanks(players) {
+  const sorted = [...players].sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+  let prevPoints = null, prevRank = 0;
+  sorted.forEach((p, i) => {
+    if (p.totalPoints === prevPoints) {
+      p._rank = prevRank;
+    } else {
+      p._rank = i + 1;
+      prevRank = p._rank;
+      prevPoints = p.totalPoints;
+    }
+  });
+  return sorted;
+}
+
+function rankBadgeHtml(rank) {
+  if (rank === 1) return `<span class="rank-badge gold"><span class="medal">🥇</span>${rank}</span>`;
+  if (rank === 2) return `<span class="rank-badge silver"><span class="medal">🥈</span>${rank}</span>`;
+  if (rank === 3) return `<span class="rank-badge bronze"><span class="medal">🥉</span>${rank}</span>`;
+  return `<span class="rank-badge">${rank}</span>`;
+}
+
+/**
+ * Detecta el género a partir del string "6TA (caballeros)" que viene en el ranking,
+ * o toma el gender de la categoría seleccionada como fallback.
+ */
+function guessGenderFromCategoria(categoria) {
+  const s = (categoria || '').toLowerCase();
+  if (s.includes('damas')) return 'damas';
+  if (s.includes('caballeros')) return 'caballeros';
+  return null;
+}
+
+function renderRanking() {
+  const container = document.getElementById('rankingTableContainer');
+  const kpisEl = document.getElementById('rankKpis');
+  const captionEl = document.getElementById('rankCaption');
+  const catNameEl = document.getElementById('rank-cat-name');
+  const catGenderBadge = document.getElementById('rank-cat-gender-badge');
+  const catIdBadge = document.getElementById('rank-cat-id-badge');
+
+  // Header: título con nombre de cat
+  if (currentRankingCategoryId != null) {
+    const catObj = cats.map(tc => tc.category).find(c => c && c.id === currentRankingCategoryId);
+    if (catObj) {
+      catNameEl.textContent = `· ${catObj.name} (${catObj.gender})`;
+      catGenderBadge.textContent = catObj.gender;
+      catGenderBadge.className = `badge pill ${catObj.gender}`;
+      catGenderBadge.style.display = '';
+      catIdBadge.textContent = `ID #${catObj.id}`;
+      catIdBadge.style.display = '';
+    }
+  } else {
+    catNameEl.textContent = '—';
+    catGenderBadge.style.display = 'none';
+    catIdBadge.style.display = 'none';
+  }
+
+  const cached = currentRankingCategoryId != null ? rankingCache[currentRankingCategoryId] : null;
+
+  if (!currentRankingCategoryId) {
+    container.innerHTML = `<div class="ranking-empty">
+      <div class="icon">🎾</div>
+      <strong>Elegí una categoría</strong>
+      <p>Usá el selector de arriba para ver el ranking de esa categoría.</p>
+    </div>`;
+    kpisEl.innerHTML = '';
+    captionEl.textContent = '';
+    document.getElementById('rankExpandAllBtn').disabled = true;
+    document.getElementById('rankRefreshBtn').disabled = true;
+    return;
+  }
+
+  if (!cached) {
+    // fetchRanking se encarga de mostrar el estado loading
+    kpisEl.innerHTML = '';
+    captionEl.textContent = '';
+    return;
+  }
+
+  const players = cached.data || [];
+  document.getElementById('rankRefreshBtn').disabled = false;
+  document.getElementById('rankExpandAllBtn').disabled = players.length === 0;
+
+  // KPIs
+  const totalPlayers = players.length;
+  const totalTournaments = players.reduce((s, p) => s + (p.tournamentsPlayed || 0), 0);
+  const avgTournaments = totalPlayers ? (totalTournaments / totalPlayers).toFixed(1) : '0';
+  const leader = players.reduce((best, p) => (!best || p.totalPoints > best.totalPoints) ? p : best, null);
+  const totalPointsSum = players.reduce((s, p) => s + (p.totalPoints || 0), 0);
+
+  kpisEl.innerHTML = '';
+  [
+    { val: totalPlayers, lbl: 'Jugadores', cls: 'accent' },
+    { val: leader ? leader.totalPoints : 0, lbl: leader ? `Líder: ${leader.nombre.trim()} ${leader.apellido.trim()}` : 'Líder', cls: 'gold' },
+    { val: totalTournaments, lbl: 'Participaciones', cls: '' },
+    { val: avgTournaments, lbl: 'Torneos prom. p/jugador', cls: 'success' },
+    { val: totalPointsSum, lbl: 'Puntos totales', cls: 'accent' },
+  ].forEach(k => {
+    const d = document.createElement('div');
+    d.className = 'kpi ' + k.cls;
+    d.innerHTML = `<div class="val">${k.val}</div><div class="lbl">${k.lbl}</div>`;
+    kpisEl.appendChild(d);
+  });
+
+  // filtro búsqueda
+  const search = (document.getElementById('rankSearch').value || '').toLowerCase().trim();
+  let ranked = computeRanks(players); // agrega _rank
+  let filtered = ranked;
+  if (search) {
+    filtered = ranked.filter(p => {
+      const hay = [p.nombre, p.apellido, p.dni, `${p.nombre} ${p.apellido}`].join(' ').toLowerCase();
+      return hay.includes(search);
+    });
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="ranking-empty">
+      <div class="icon">🔎</div>
+      <strong>Sin coincidencias</strong>
+      <p>Ningún jugador matchea la búsqueda "${search}".</p>
+    </div>`;
+    captionEl.textContent = `${ranked.length} jugadores en total`;
+    return;
+  }
+
+  // Tabla
+  const rowsHtml = filtered.map(p => {
+    const dni = p.dni || '—';
+    const isExpanded = rankingExpanded.has(dni);
+    const gender = guessGenderFromCategoria(p.categoria);
+    const genderPill = gender ? `<span class="pill ${gender}" style="margin-left:6px">${gender}</span>` : '';
+    const fullName = `${(p.nombre || '').trim()} ${(p.apellido || '').trim()}`.trim() || '—';
+
+    // fila principal
+    const mainRow = `
+      <tr class="rank-row ${isExpanded ? 'expanded' : ''}" data-dni="${dni}" onclick="toggleRankingRow('${dni}')">
+        <td>${rankBadgeHtml(p._rank)}</td>
+        <td>
+          <div style="font-weight:600;color:var(--text-primary);font-size:13px">${fullName}</div>
+          <div class="mono" style="font-size:10px">DNI ${dni}</div>
+        </td>
+        <td>${p.categoria || '—'}${genderPill}</td>
+        <td><span class="rank-points">${p.totalPoints ?? 0}</span></td>
+        <td><span class="rank-tournaments">${p.tournamentsPlayed ?? 0}</span></td>
+        <td style="text-align:right"><span class="chevron">▶</span></td>
+      </tr>
+    `;
+
+    // fila detalle (acordeón)
+    const detailRow = `
+      <tr class="rank-detail-row" data-dni-detail="${dni}" ${isExpanded ? '' : 'style="display:none"'}>
+        <td colspan="6">
+          <div class="rank-detail-inner">
+            <div class="detail-title">Historial de puntos · ${p.tournamentsPlayed ?? 0} torneo${(p.tournamentsPlayed ?? 0) === 1 ? '' : 's'}</div>
+            ${renderPointsHistory(p.pointsHistory || [])}
+          </div>
+        </td>
+      </tr>
+    `;
+
+    return mainRow + detailRow;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="no-sort" style="width:56px">#</th>
+            <th class="no-sort">Jugador</th>
+            <th class="no-sort">Categoría</th>
+            <th class="no-sort">Puntos</th>
+            <th class="no-sort">Torneos</th>
+            <th class="no-sort" style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="rankBody">${rowsHtml}</tbody>
+      </table>
+    </div>
+  `;
+
+  captionEl.textContent = `${filtered.length} de ${ranked.length} jugadores · ordenados por puntaje total`;
+
+  // sincronizar botón expandir/colapsar según estado
+  syncExpandAllButton();
+}
+
+function renderPointsHistory(history) {
+  if (!history || history.length === 0) {
+    return `<div class="history-empty">Sin historial de participación disponible.</div>`;
+  }
+  // ordenar por fecha desc
+  const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const rows = sorted.map(h => {
+    const posClass = positionPillClass(h.position);
+    const doublePts = h.isDoublePoints ? `<span class="pill doublepoints">×2</span>` : '';
+    return `
+      <tr>
+        <td class="history-date">${fmtDate(h.date, false)}</td>
+        <td><span class="pill ${posClass}">${h.position || '—'}</span></td>
+        <td><span class="mono">${h.category || '—'}</span></td>
+        <td><span class="history-points">+${h.points ?? 0}</span>${doublePts}</td>
+      </tr>
+    `;
+  }).join('');
+  return `
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th style="width:110px">Fecha</th>
+          <th>Posición</th>
+          <th style="width:100px">Categoría</th>
+          <th style="width:110px">Puntos</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function toggleRankingRow(dni) {
+  if (rankingExpanded.has(dni)) {
+    rankingExpanded.delete(dni);
+  } else {
+    rankingExpanded.add(dni);
+  }
+  // toggle sin re-render completo (más suave)
+  const row = document.querySelector(`.rank-row[data-dni="${dni}"]`);
+  const detail = document.querySelector(`.rank-detail-row[data-dni-detail="${dni}"]`);
+  if (row && detail) {
+    const nowExpanded = rankingExpanded.has(dni);
+    row.classList.toggle('expanded', nowExpanded);
+    detail.style.display = nowExpanded ? '' : 'none';
+  }
+  syncExpandAllButton();
+}
+
+function toggleAllRankingRows() {
+  const cached = currentRankingCategoryId != null ? rankingCache[currentRankingCategoryId] : null;
+  if (!cached) return;
+  const search = (document.getElementById('rankSearch').value || '').toLowerCase().trim();
+  const players = computeRanks(cached.data).filter(p => {
+    if (!search) return true;
+    const hay = [p.nombre, p.apellido, p.dni, `${p.nombre} ${p.apellido}`].join(' ').toLowerCase();
+    return hay.includes(search);
+  });
+  const allExpanded = players.length > 0 && players.every(p => rankingExpanded.has(p.dni));
+  if (allExpanded) {
+    players.forEach(p => rankingExpanded.delete(p.dni));
+  } else {
+    players.forEach(p => rankingExpanded.add(p.dni));
+  }
+  renderRanking();
+}
+
+function syncExpandAllButton() {
+  const btn = document.getElementById('rankExpandAllBtn');
+  const cached = currentRankingCategoryId != null ? rankingCache[currentRankingCategoryId] : null;
+  if (!cached || !cached.data.length) {
+    btn.textContent = '⤢ Expandir todo';
+    return;
+  }
+  const search = (document.getElementById('rankSearch').value || '').toLowerCase().trim();
+  const players = cached.data.filter(p => {
+    if (!search) return true;
+    const hay = [p.nombre, p.apellido, p.dni, `${p.nombre} ${p.apellido}`].join(' ').toLowerCase();
+    return hay.includes(search);
+  });
+  const allExpanded = players.length > 0 && players.every(p => rankingExpanded.has(p.dni));
+  btn.textContent = allExpanded ? '⤡ Colapsar todo' : '⤢ Expandir todo';
+}
+
+// Loggers globales
 window.addEventListener('error', e => {
   console.error('[CircuitoPM] Uncaught error:', e.error || e.message, e);
 });
@@ -924,9 +1523,6 @@ window.addEventListener('unhandledrejection', e => {
   console.error('[CircuitoPM] Unhandled promise rejection:', e.reason);
 });
 
-// Los listeners de la app se registran cuando ya está visible.
-// El auto-login también corre acá, después de que TODAS las declaraciones `let`
-// (raw, cats, teamCache, etc.) están inicializadas.
 document.addEventListener('DOMContentLoaded', () => {
   const bu = document.getElementById('baseUrl');
   const ti = document.getElementById('tournamentId');
@@ -935,7 +1531,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (ti) ti.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
   if (bt) bt.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
 
-  // Auto-login si hay sesión válida
   if (isAuthed()) { showApp(); }
 });
 </script>
