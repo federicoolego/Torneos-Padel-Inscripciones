@@ -171,10 +171,28 @@ function renderRegistrations() {
   regBody.innerHTML = '';
   const search = (document.getElementById('regSearch')?.value || '').toLowerCase();
   const resolvedF = document.getElementById('regResolvedFilter')?.value || '';
+  const catSel = document.getElementById('regCategoryFilter');
+  const catF = catSel?.value || '';
+
+  // Poblar el <select> de categorías preservando la selección actual
+  if (catSel) {
+    const prev = catSel.value;
+    const opts = ['<option value="">Todas las categorías</option>'];
+    cats.forEach(c => {
+      const label = `${c.category.name} ${c.category.gender}`;
+      opts.push(`<option value="${c.category.id}">${label}</option>`);
+    });
+    catSel.innerHTML = opts.join('');
+    // Restaurar selección si sigue existiendo
+    if (prev && cats.some(c => String(c.category.id) === String(prev))) {
+      catSel.value = prev;
+    }
+  }
 
   let allRegs = [];
   cats.forEach(c => c.registrations.forEach(r => allRegs.push({ ...r, cat: c.category })));
 
+  if (catF) allRegs = allRegs.filter(r => String(r.cat.id) === String(catF));
   if (resolvedF === 'resolved') allRegs = allRegs.filter(r => teamCache[r.team_id]);
   if (resolvedF === 'unresolved') allRegs = allRegs.filter(r => !teamCache[r.team_id]);
   if (search) {
