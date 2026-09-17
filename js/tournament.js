@@ -12,6 +12,9 @@ function fmtTime24(d) {
  * Trae el listado de torneos desde /api/tournaments y puebla el <select>.
  * Se llama en showApp() y también cuando el usuario aprieta "Recargar torneos"
  * en el panel de settings.
+ *
+ * Intentamos varias variantes del endpoint en paralelo porque el default
+ * puede filtrar por estado (ej: solo devolver finalizados). Mergeamos por id.
  */
 async function fetchTournamentsList(forceRefresh = false) {
   const sel = document.getElementById('tournamentId');
@@ -24,10 +27,34 @@ async function fetchTournamentsList(forceRefresh = false) {
   statusEl.innerHTML = '<span class="spinner"></span>Cargando torneos...';
 
   try {
-    const resp = await apiGet(`/api/tournaments?_ts=${Date.now()}`);
-    const list = Array.isArray(resp?.data) ? resp.data : [];
-    // Más recientes primero
-    list.sort((a, b) => new Date(b.fecha_inicio || 0) - new Date(a.fecha_inicio || 0));
+    const ts = Date.now();
+    const attempts = [
+      `/api/tournaments?_ts=${ts}`,
+      `/api/tournaments?estado=abierto&_ts=${ts + 1}`,
+      `/api/tournaments?estado=all&_ts=${ts + 2}`,
+      `/api/tournaments?status=all&_ts=${ts + 3}`,
+      `/api/tournaments?all=true&_ts=${ts + 4}`,
+      `/api/tournaments?include_inactive=true&_ts=${ts + 5}`,
+    ];
+    const results = await Promise.allSettled(attempts.map(p => apiGet(p)));
+    const uniq = new Map();
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled' && Array.isArray(r.value?.data)) {
+        console.log(`[tournaments] ${attempts[i].split('?')[1].split('&_ts')[0] || '(sin params)'} → ${r.value.data.length} torneos`);
+        r.value.data.forEach(t => uniq.set(t.id, t));
+      } else if (r.status === 'rejected') {
+        console.log(`[tournaments] ${attempts[i].split('?')[1].split('&_ts')[0] || '(sin params)'} → ${r.reason.message}`);
+      }
+    });
+    const list = [...uniq.values()];
+
+    // Ordenar: no-finalizados primero, después por fecha_inicio descendente
+    list.sort((a, b) => {
+      const aFin = /finaliz/i.test(a.estado || '');
+      const bFin = /finaliz/i.test(b.estado || '');
+      if (aFin !== bFin) return aFin ? 1 : -1;
+      return new Date(b.fecha_inicio || 0) - new Date(a.fecha_inicio || 0);
+    });
 
     if (!list.length) {
       sel.innerHTML = '<option value="">Sin torneos disponibles</option>';
@@ -42,7 +69,9 @@ async function fetchTournamentsList(forceRefresh = false) {
         ? d.toLocaleDateString('es-AR', { month: 'short', year: 'numeric' })
         : '';
       const name = t.nombre || `Torneo #${t.id}`;
-      return `<option value="${t.id}">${name}${dateLbl ? ' · ' + dateLbl : ''}</option>`;
+      // Etiqueta de estado sólo si NO es "finalizado" — highlight visual del torneo activo
+      const estadoLbl = t.estado && !/finaliz/i.test(t.estado) ? `  ● ${t.estado}` : '';
+      return `<option value="${t.id}">${name}${dateLbl ? ' · ' + dateLbl : ''}${estadoLbl}</option>`;
     }).join('');
 
     if (savedTid && list.some(t => String(t.id) === String(savedTid))) {
@@ -60,6 +89,30 @@ async function fetchTournamentsList(forceRefresh = false) {
     statusEl.textContent = '✗ Error torneos';
     return [];
   }
+}
+
+/**
+ * Carga un torneo por ID manual (fallback para cuando /api/tournaments no
+ * devuelve algún torneo — típicamente el activo con inscripciones abiertas).
+ * Agrega una opción temporal al <select> con el ID tipeado.
+ */
+function loadManualTournament() {
+  const input = document.getElementById('manualTournamentId');
+  const id = input.value.trim();
+  if (!id) return;
+  const sel = document.getElementById('tournamentId');
+  const existing = [...sel.options].find(o => o.value === id);
+  if (!existing) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = `Torneo #${id} (manual)`;
+    opt.selected = true;
+    sel.appendChild(opt);
+  } else {
+    sel.value = id;
+  }
+  input.value = '';
+  fetchTournament();
 }
 
 /** Toggle del panel avanzado (API URL / Bearer Token) */

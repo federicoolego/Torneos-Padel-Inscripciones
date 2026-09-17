@@ -72,6 +72,13 @@
     <label>Bearer Token</label>
     <input type="password" id="bearerToken" placeholder="eyJhbGci..." class="token"/>
   </div>
+  <div class="settings-group" style="min-width:auto">
+    <label>Torneo ID manual</label>
+    <div style="display:flex;gap:6px">
+      <input type="number" id="manualTournamentId" placeholder="16" min="1" style="width:100px;text-align:center" onkeydown="if(event.key==='Enter')loadManualTournament()"/>
+      <button class="btn-modern" onclick="loadManualTournament()">Ir</button>
+    </div>
+  </div>
   <button class="btn-modern" onclick="fetchTournamentsList(true)">↻ Recargar torneos</button>
 </div>
 
