@@ -683,3 +683,68 @@ td { padding: 10px 12px; vertical-align: middle; }
   opacity: 0.6;
   margin-left: 4px;
 }
+
+/* ============ COLUMNAS FIJAS (STICKY) ============ */
+/* Necesario para que position:sticky funcione dentro de <table> */
+#mainContent > .table-wrap table,
+.reg-table-wrap table,
+#rankingTableContainer .table-wrap table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* --- Categorías: columna 1 (Categoría) fija --- */
+#mainContent > .table-wrap th:first-child,
+#mainContent > .table-wrap td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg-secondary);
+  box-shadow: 4px 0 6px -3px rgba(0, 0, 0, 0.5);
+}
+#mainContent > .table-wrap thead th:first-child {
+  background: var(--bg-tertiary);
+  z-index: 3;
+}
+#mainContent > .table-wrap .cat-row-clickable:hover td:first-child {
+  background: var(--bg-hover);
+}
+
+/* --- Parejas inscriptas: columna 2 (Categoría) fija --- */
+/* Habilitar scroll horizontal (ya tenía overflow-y) */
+.reg-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.reg-table-wrap th:nth-child(2),
+.reg-table-wrap td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg-secondary);
+  box-shadow: 4px 0 6px -3px rgba(0, 0, 0, 0.5);
+}
+.reg-table-wrap thead th:nth-child(2) {
+  background: var(--bg-tertiary);
+  z-index: 3; /* por encima del sticky top-header y del sticky de datos */
+}
+
+/* --- Ranking: columna 2 (Jugador) fija --- */
+#rankingTableContainer .table-wrap th:nth-child(2),
+#rankingTableContainer .table-wrap td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg-secondary);
+  box-shadow: 4px 0 6px -3px rgba(0, 0, 0, 0.5);
+}
+#rankingTableContainer .table-wrap thead th:nth-child(2) {
+  background: var(--bg-tertiary);
+  z-index: 3;
+}
+#rankingTableContainer .table-wrap .rank-row:hover td:nth-child(2),
+#rankingTableContainer .table-wrap .rank-row.expanded td:nth-child(2) {
+  background: var(--bg-hover);
+}
+/* La fila expandida (detalle) usa colspan y no debe respetar el sticky */
+#rankingTableContainer .table-wrap .rank-detail-row td {
+  position: static !important;
+  box-shadow: none !important;
+}

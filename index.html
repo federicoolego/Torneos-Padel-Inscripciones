@@ -81,10 +81,8 @@
   <div class="section-title">Categorías</div>
   <div class="filter-row">
     <input type="text" id="searchInput" placeholder="🔎 Buscar categoría..." oninput="renderTable()"/>
-    <select id="genderFilter" onchange="renderTable()">
-      <option value="">Todos los géneros</option>
-      <option value="caballeros">Caballeros</option>
-      <option value="damas">Damas</option>
+    <select id="catNameFilter" onchange="renderTable()">
+      <option value="">Todas las categorías</option>
     </select>
     <select id="openFilter" onchange="renderTable()">
       <option value="">Toda inscripción</option>
@@ -97,7 +95,6 @@
       <thead>
         <tr>
           <th onclick="sortBy('name')" id="th-name">Categoría <span class="sort-icon">↕</span></th>
-          <th onclick="sortBy('gender')" id="th-gender">Género <span class="sort-icon">↕</span></th>
           <th onclick="sortBy('inscriptions')" id="th-inscriptions">Inscriptos <span class="sort-icon">↕</span></th>
           <th onclick="sortBy('cupo')" id="th-cupo">Cupo <span class="sort-icon">↕</span></th>
           <th>Ocupación</th>

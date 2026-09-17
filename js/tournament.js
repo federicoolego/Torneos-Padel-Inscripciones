@@ -106,15 +106,33 @@ function sortBy(key) {
 function renderTable() {
   if (!cats.length) return;
   const search = document.getElementById('searchInput').value.toLowerCase();
-  const gender = document.getElementById('genderFilter').value;
   const openF = document.getElementById('openFilter').value;
+  const catSel = document.getElementById('catNameFilter');
+  const catF = catSel?.value || '';
+
+  // Poblar el <select> de categorías preservando la selección actual
+  if (catSel) {
+    const prev = catSel.value;
+    const opts = ['<option value="">Todas las categorías</option>'];
+    [...cats]
+      .sort((a, b) => (a.category.rank || 0) - (b.category.rank || 0))
+      .forEach(c => {
+        const label = `${c.category.name} (${c.category.gender})`;
+        opts.push(`<option value="${c.id}">${label}</option>`);
+      });
+    catSel.innerHTML = opts.join('');
+    if (prev && cats.some(c => String(c.id) === String(prev))) {
+      catSel.value = prev;
+    }
+  }
+
   let rows = cats.map(c => ({
     name: c.category.name, gender: c.category.gender, rank: c.category.rank,
     inscriptions: c.registrations.length, cupo: c.cupo, open: c.inscripcion_abierta,
     format: c.match_format, id: c.id,
   }));
   if (search) rows = rows.filter(r => r.name.toLowerCase().includes(search) || r.gender.toLowerCase().includes(search));
-  if (gender) rows = rows.filter(r => r.gender === gender);
+  if (catF) rows = rows.filter(r => String(r.id) === String(catF));
   if (openF === 'open') rows = rows.filter(r => r.open);
   if (openF === 'closed') rows = rows.filter(r => !r.open);
   rows.sort((a, b) => {
@@ -126,7 +144,7 @@ function renderTable() {
   const tbody = document.getElementById('catBody');
   tbody.innerHTML = '';
   if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted)">Sin coincidencias.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Sin coincidencias.</td></tr>';
   } else {
     rows.forEach(r => {
       const pct = r.cupo ? Math.round((r.inscriptions / r.cupo) * 100) : 0;
@@ -139,8 +157,7 @@ function renderTable() {
         subtitle: raw?.data?.nombre ? `${raw.data.nombre}` : `Torneo #${document.getElementById('tournamentId').value}`
       });
       tr.innerHTML = `
-        <td><strong>${r.name}</strong></td>
-        <td><span class="pill ${r.gender}">${r.gender}</span></td>
+        <td><strong>${r.name}</strong> <span class="pill ${r.gender}" style="margin-left:4px">${r.gender}</span></td>
         <td><span class="reg-count">${r.inscriptions}</span></td>
         <td><span class="cupo-num">${r.cupo}</span></td>
         <td><span class="bar-wrap"><span class="bar-fill ${barClass(pct)}" style="width:${barW}%"></span></span><span class="pct-label">${pct}%</span></td>
