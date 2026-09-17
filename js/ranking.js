@@ -322,9 +322,22 @@ function renderPointsHistory(history) {
   const rows = sorted.map(h => {
     const posClass = positionPillClass(h.position);
     const doublePts = h.isDoublePoints ? `<span class="pill doublepoints">×2</span>` : '';
+    // El tc_id puede venir con distintos nombres según serializer; probamos varios
+    const tcId = h.tournament_category_id ?? h.tournamentCategoryId ?? h.tc_id ?? '';
+    const tid  = h.tournament_id ?? h.tournamentId ?? '';
+    const cid  = currentRankingCategoryId ?? '';
+    const dateStr = fmtDate(h.date, false);
+    const canOpen = tcId || (tid && cid);
     return `
-      <tr>
-        <td class="history-date">${fmtDate(h.date, false)}</td>
+      <tr class="${canOpen ? 'history-row-clickable' : ''}"
+          ${canOpen ? `onclick="openBracketFromHistory(this)"` : ''}
+          data-tc-id="${tcId}"
+          data-tid="${tid}"
+          data-cid="${cid}"
+          data-category="${(h.category || '').replace(/"/g,'&quot;')}"
+          data-date="${dateStr}"
+          title="${canOpen ? 'Click para ver el cuadro de playoff' : ''}">
+        <td class="history-date">${dateStr}</td>
         <td><span class="pill ${posClass}">${h.position || '—'}</span></td>
         <td><span class="mono">${h.category || '—'}</span></td>
         <td><span class="history-points">+${h.points ?? 0}</span>${doublePts}</td>

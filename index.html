@@ -188,6 +188,20 @@
   </div>
 </div>
 
+<!-- BRACKET (PLAYOFF) MODAL -->
+<div id="bracketOverlay" class="bracket-overlay hidden" onclick="if(event.target===this)closeBracketModal()">
+  <div class="bracket-modal">
+    <div class="bracket-header">
+      <div>
+        <h3 id="bracketTitle">Cuadro de Playoff</h3>
+        <div class="subtitle" id="bracketSubtitle"></div>
+      </div>
+      <button class="bracket-close" onclick="closeBracketModal()">✕ Cerrar</button>
+    </div>
+    <div class="bracket-body" id="bracketBody"></div>
+  </div>
+</div>
+
 </div><!-- /#appRoot -->
 
 <!-- ============ SCRIPTS (orden importante) ============ -->
@@ -200,6 +214,7 @@
 <script src="js/preload.js"></script>
 <script src="js/tournament.js"></script>
 <script src="js/ranking.js"></script>
+<script src="js/bracket.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

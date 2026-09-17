@@ -437,3 +437,177 @@ td { padding: 10px 12px; vertical-align: middle; }
   .rank-detail-inner { padding: 12px 12px 18px 12px; }
   .history-table { font-size: 11px; }
 }
+
+/* ============ BRACKET (PLAYOFF) MODAL ============ */
+.bracket-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.bracket-overlay.hidden { display: none; }
+
+.bracket-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  width: min(1200px, 96vw);
+  max-height: 92vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.bracket-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-default);
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 20px;
+}
+.bracket-header h3 {
+  margin: 0; font-size: 15px; color: var(--text-primary);
+}
+.bracket-header .subtitle {
+  font-size: 12px; color: var(--text-secondary); margin-top: 2px;
+}
+.bracket-close {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.bracket-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.bracket-body {
+  padding: 24px;
+  overflow: auto;
+  flex: 1;
+}
+
+.bracket-loading,
+.bracket-empty,
+.bracket-error {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.bracket-error { color: var(--danger); }
+
+/* Columnas de rondas */
+.bracket {
+  display: flex;
+  gap: 40px;
+  min-width: max-content;
+  align-items: stretch;
+}
+.br-col {
+  display: flex; flex-direction: column;
+  min-width: 230px;
+}
+.br-round-title {
+  text-transform: uppercase;
+  font-size: 11px; letter-spacing: 1.5px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 6px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: 20px;
+  margin-bottom: 16px;
+  align-self: center;
+  font-weight: 600;
+}
+.br-col-matches {
+  display: flex; flex-direction: column;
+  justify-content: space-around;
+  flex: 1; gap: 14px;
+}
+
+/* Cajas de partido */
+.br-match {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: relative;
+  min-width: 220px;
+}
+.br-match.is-bye { opacity: 0.85; }
+
+/* Línea horizontal hacia la siguiente ronda */
+.br-col:not(.br-col-last) .br-match::after {
+  content: '';
+  position: absolute;
+  right: -20px; top: 50%;
+  width: 20px; height: 1px;
+  background: var(--border-default);
+}
+
+.br-team {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-muted);
+}
+.br-team:last-of-type { border-bottom: none; }
+.br-team.is-winner {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.br-team.is-winner .br-name { color: var(--success); }
+.br-team.is-empty { opacity: 0.5; }
+
+.br-seed {
+  display: inline-block;
+  min-width: 16px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: monospace;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+.br-name { flex: 1; line-height: 1.3; }
+
+.br-score {
+  text-align: center;
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border-muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.br-score.br-bye {
+  color: var(--text-muted);
+  font-style: italic;
+  font-weight: normal;
+  letter-spacing: 1px;
+}
+.br-score.br-pending { color: var(--text-muted); font-weight: normal; }
+
+/* Filas del historial: clickeables */
+.history-row-clickable {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.history-row-clickable:hover {
+  background: var(--bg-hover);
+}
+.history-row-clickable .history-date::before {
+  content: '👁 ';
+  opacity: 0.4;
+  margin-right: 2px;
+  font-size: 10px;
+}
