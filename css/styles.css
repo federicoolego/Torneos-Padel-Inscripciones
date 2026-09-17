@@ -710,18 +710,18 @@ td { padding: 10px 12px; vertical-align: middle; }
   background: var(--bg-hover);
 }
 
-/* --- Parejas inscriptas: columna 2 (Categoría) fija --- */
+/* --- Parejas inscriptas: columna 1 (Categoría) fija --- */
 /* Habilitar scroll horizontal (ya tenía overflow-y) */
 .reg-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.reg-table-wrap th:nth-child(2),
-.reg-table-wrap td:nth-child(2) {
+.reg-table-wrap th:first-child,
+.reg-table-wrap td:first-child {
   position: sticky;
   left: 0;
   z-index: 2;
   background: var(--bg-secondary);
   box-shadow: 4px 0 6px -3px rgba(0, 0, 0, 0.5);
 }
-.reg-table-wrap thead th:nth-child(2) {
+.reg-table-wrap thead th:first-child {
   background: var(--bg-tertiary);
   z-index: 3; /* por encima del sticky top-header y del sticky de datos */
 }
@@ -757,8 +757,8 @@ td { padding: 10px 12px; vertical-align: middle; }
 }
 #mainContent > .table-wrap th:first-child,
 #mainContent > .table-wrap td:first-child,
-.reg-table-wrap th:nth-child(2),
-.reg-table-wrap td:nth-child(2) {
+.reg-table-wrap th:first-child,
+.reg-table-wrap td:first-child {
   width: var(--cat-col-width);
   min-width: var(--cat-col-width);
   max-width: var(--cat-col-width);

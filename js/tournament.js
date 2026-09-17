@@ -295,7 +295,7 @@ function renderRegistrations() {
   allRegs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   if (allRegs.length === 0) {
-    regBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">Sin inscripciones para mostrar.</td></tr>';
+    regBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted)">Sin inscripciones para mostrar.</td></tr>';
     return;
   }
 
@@ -303,7 +303,6 @@ function renderRegistrations() {
     const tr = document.createElement('tr');
     const problems = r.schedule_problems ? `<span class="schedule-cell">${r.schedule_problems}</span>` : `<span class="empty-cell">—</span>`;
     tr.innerHTML = `
-      <td class="mono">#${r.id}</td>
       <td><strong>${r.cat.name}</strong> <span class="pill ${r.cat.gender}" style="margin-left:4px">${r.cat.gender}</span></td>
       <td>${renderPlayers(r.team_id)}</td>
       <td><span class="pill ${r.estado}">${r.estado}</span></td>
