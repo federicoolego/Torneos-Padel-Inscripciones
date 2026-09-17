@@ -235,7 +235,7 @@ body {
 .filter-row .filter-hint { font-size: 11px; color: var(--text-muted); margin-left: auto; font-style: italic; }
 
 /* TABLES */
-.table-wrap { background: var(--bg-secondary); border: 1px solid var(--border-default); border-radius: 8px; overflow: hidden; }
+.table-wrap { background: var(--bg-secondary); border: 1px solid var(--border-default); border-radius: 8px; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
 thead th {
   background: var(--bg-tertiary); padding: 10px 12px; text-align: left; font-weight: 600;
@@ -610,4 +610,61 @@ td { padding: 10px 12px; vertical-align: middle; }
   opacity: 0.4;
   margin-right: 2px;
   font-size: 10px;
+}
+
+/* ============ WRAPPERS SCROLLABLES EXTRA ============ */
+/* Envolvente propio del historial de puntos, así el usuario puede scrollear
+   horizontalmente en mobile sin depender del overflow del ranking exterior. */
+.history-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 6px;
+}
+.history-table-wrap .history-table {
+  min-width: 460px; /* fuerza scroll horizontal en pantallas chicas */
+}
+.history-table-wrap::-webkit-scrollbar { height: 6px; }
+.history-table-wrap::-webkit-scrollbar-track { background: transparent; }
+.history-table-wrap::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+
+/* Scrollbar visible en el ranking exterior también */
+.table-wrap::-webkit-scrollbar { height: 8px; }
+.table-wrap::-webkit-scrollbar-track { background: var(--bg-secondary); }
+.table-wrap::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 4px; }
+
+/* ============ BOTÓN FLOTANTE SALIR ============ */
+.logout-float {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 900;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.logout-float:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: rgba(248, 81, 73, 0.4);
+  transform: translateY(-1px);
+}
+.logout-float:active { transform: translateY(0); }
+
+@media (max-width: 640px) {
+  .logout-float {
+    top: 8px;
+    right: 8px;
+    padding: 5px 10px;
+    font-size: 11px;
+  }
 }

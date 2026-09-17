@@ -345,6 +345,7 @@ function renderPointsHistory(history) {
     `;
   }).join('');
   return `
+    <div class="history-table-wrap">
     <table class="history-table">
       <thead>
         <tr>
@@ -356,6 +357,7 @@ function renderPointsHistory(history) {
       </thead>
       <tbody>${rows}</tbody>
     </table>
+    </div>
   `;
 }
 

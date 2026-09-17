@@ -34,6 +34,9 @@
 <!-- ============ APP (oculta hasta login) ============ -->
 <div id="appRoot" class="hidden">
 
+<!-- Botón flotante Salir (siempre visible cuando hay sesión) -->
+<button id="logoutFloat" class="logout-float" onclick="logout()" title="Cerrar sesión">🚪 Salir</button>
+
 <!-- TABS: primero de todo, siempre visibles -->
 <div class="tabs" role="tablist">
   <button class="tab active" id="tab-tournament" role="tab" onclick="switchView('tournament')">
@@ -53,7 +56,6 @@
   <label>Bearer Token</label>
   <input type="password" id="bearerToken" placeholder="eyJhbGci..." class="token"/>
   <button id="fetchBtn" onclick="fetchTournament()">🔄 Cargar</button>
-  <button class="secondary" onclick="logout()" style="margin-left:auto">🚪 Salir</button>
   <span class="status" id="apiStatus">Listo</span>
 </div>
 
