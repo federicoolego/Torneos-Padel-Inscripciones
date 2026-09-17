@@ -111,6 +111,9 @@
   <div class="section-title">Parejas inscriptas</div>
   <div class="filter-row">
     <input type="text" id="regSearch" placeholder="🔎 Buscar por jugador, DNI o categoría..." oninput="renderRegistrations()"/>
+    <select id="regCategoryFilter" onchange="renderRegistrations()">
+      <option value="">Todas las categorías</option>
+    </select>
     <select id="regResolvedFilter" onchange="renderRegistrations()">
       <option value="">Todas</option>
       <option value="resolved">Sólo con nombres</option>
