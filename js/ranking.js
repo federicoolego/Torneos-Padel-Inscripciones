@@ -282,7 +282,7 @@ function renderRanking() {
         <td colspan="7">
           <div class="rank-detail-inner">
             <div class="detail-title">Historial de puntos · ${p.tournamentsPlayed ?? 0} torneo${(p.tournamentsPlayed ?? 0) === 1 ? '' : 's'}</div>
-            ${renderPointsHistory(p.pointsHistory || [])}
+            ${renderPointsHistory(p.pointsHistory || [], dni)}
           </div>
         </td>
       </tr>
@@ -314,15 +314,23 @@ function renderRanking() {
   syncExpandAllButton();
 }
 
-function renderPointsHistory(history) {
+// Cache de entries crudos del historial, keyed por dni:idx
+// Sirve para que openBracketFromHistory pueda mostrar el objeto completo
+// (con TODOS los campos del backend) cuando falla la resolución del tc_id.
+const historyEntryCache = new Map();
+
+function renderPointsHistory(history, dni) {
   if (!history || history.length === 0) {
     return `<div class="history-empty">Sin historial de participación disponible.</div>`;
   }
   // DEBUG: exponer los campos crudos para chequear en consola qué nombres usa el backend
-  console.log('[bracket] pointsHistory entries:', history);
+  console.log(`[bracket] pointsHistory entries de DNI ${dni}:`, history);
 
   const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
   const rows = sorted.map((h, idx) => {
+    // Guardo el entry crudo para poder mostrarlo en el modal si falla la resolución
+    historyEntryCache.set(`${dni}:${idx}`, h);
+
     const posClass = positionPillClass(h.position);
     const doublePts = h.isDoublePoints ? `<span class="pill doublepoints">×2</span>` : '';
     // El tc_id puede venir con distintos nombres según serializer; probamos varios
@@ -330,7 +338,6 @@ function renderPointsHistory(history) {
     const tid  = h.tournament_id ?? h.tournamentId ?? h.torneo_id ?? '';
     const cid  = currentRankingCategoryId ?? '';
     const dateStr = fmtDate(h.date, false);
-    // SIEMPRE clickeable: si no hay datos, la función mostrará un mensaje claro
     return `
       <tr class="history-row-clickable"
           onclick="openBracketFromHistory(this)"
@@ -339,6 +346,7 @@ function renderPointsHistory(history) {
           data-cid="${cid}"
           data-category="${(h.category || '').replace(/"/g,'&quot;')}"
           data-date="${dateStr}"
+          data-dni="${dni}"
           data-idx="${idx}"
           title="Click para ver el cuadro de playoff">
         <td class="history-date">${dateStr}</td>

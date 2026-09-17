@@ -63,16 +63,20 @@ async function openBracketFromHistory(rowEl) {
     return;
   }
 
-  // No hay datos suficientes: mostramos el problema en el modal (no consola)
-  console.warn('[bracket] Faltan tournament_id y/o category_id en el entry:', rowEl.dataset);
+  // No hay datos suficientes: mostramos el entry crudo del backend en el modal
+  const rawEntry = (typeof historyEntryCache !== 'undefined' && rowEl.dataset.dni && rowEl.dataset.idx !== undefined)
+    ? historyEntryCache.get(`${rowEl.dataset.dni}:${rowEl.dataset.idx}`)
+    : null;
+
+  console.warn('[bracket] Faltan tournament_id y/o category_id en el entry:', rawEntry || rowEl.dataset);
   showBracketModal(meta, `
     <div class="bracket-error">
       <p>⚠ No se pudo identificar el torneo.</p>
-      <p style="font-size:11px;color:var(--text-muted);margin-top:8px">
-        El backend no está exponiendo <code>tournament_category_id</code> ni <code>tournament_id</code> en el historial.
-        Abrí la consola del navegador — el objeto crudo del historial se logueó ahí (buscá "pointsHistory entries").
+      <p style="font-size:12px;color:var(--text-secondary);margin-top:8px">
+        El backend no expone <code>tournament_id</code> ni <code>tournament_category_id</code> en el <code>pointsHistory</code>.
+        Debajo está el objeto crudo tal cual lo devuelve la API — copialo y pasámelo, o pedile al backend que agregue alguno de esos dos campos.
       </p>
-      <pre style="font-size:10px;background:var(--bg-tertiary);padding:8px;border-radius:4px;margin-top:8px;text-align:left;overflow:auto">${escapeHtml(JSON.stringify(rowEl.dataset, null, 2))}</pre>
+      <pre style="font-size:11px;background:var(--bg-tertiary);padding:12px;border-radius:6px;margin-top:10px;text-align:left;overflow:auto;max-height:300px">${escapeHtml(JSON.stringify(rawEntry || rowEl.dataset, null, 2))}</pre>
     </div>
   `);
 }

@@ -748,3 +748,22 @@ td { padding: 10px 12px; vertical-align: middle; }
   position: static !important;
   box-shadow: none !important;
 }
+
+/* ============ ANCHO UNIFORME COLUMNAS CATEGORÍA ============ */
+/* Ambas tablas usan el mismo ancho fijo así se ven "alineadas" visualmente
+   aunque estén en wrappers independientes. */
+:root {
+  --cat-col-width: 160px;
+}
+#mainContent > .table-wrap th:first-child,
+#mainContent > .table-wrap td:first-child,
+.reg-table-wrap th:nth-child(2),
+.reg-table-wrap td:nth-child(2) {
+  width: var(--cat-col-width);
+  min-width: var(--cat-col-width);
+  max-width: var(--cat-col-width);
+}
+
+@media (max-width: 640px) {
+  :root { --cat-col-width: 140px; }
+}
