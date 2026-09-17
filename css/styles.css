@@ -916,8 +916,20 @@ td { padding: 10px 12px; vertical-align: middle; }
 .cache-bar .cache-actions { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
 
 @media (max-width: 640px) {
-  .api-bar .tournament-picker { min-width: 0; max-width: none; flex: 1; }
-  .api-bar .btn-primary { padding: 8px 12px; font-size: 12px; }
+  .api-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "picker  fetch"
+      "status  settings";
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .api-bar .tournament-picker { grid-area: picker; min-width: 0; max-width: none; }
+  .api-bar #fetchBtn { grid-area: fetch; }
+  .api-bar .status { grid-area: status; margin-left: 0; align-self: center; }
+  .api-bar #settingsToggleBtn { grid-area: settings; justify-self: end; }
+
   .api-settings { flex-direction: column; align-items: stretch; }
   .cache-bar .cache-actions { margin-left: 0; width: 100%; }
   .cache-bar .cache-actions .btn-modern { flex: 1; justify-content: center; }
