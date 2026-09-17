@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const ti = document.getElementById('tournamentId');
   const bt = document.getElementById('bearerToken');
   if (bu) bu.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
-  if (ti) ti.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
+  // El select de torneo carga automáticamente al cambiar
+  if (ti) ti.addEventListener('change', () => fetchTournament());
   if (bt) bt.addEventListener('keydown', e => { if (e.key === 'Enter') fetchTournament(); });
 
   if (isAuthed()) { showApp(); }

@@ -20,11 +20,15 @@ function isAuthed() {
   } catch { return false; }
 }
 
-function showApp() {
+async function showApp() {
   document.getElementById('loginGate').classList.add('hidden');
   document.getElementById('appRoot').classList.remove('hidden');
   loadFromStorage();
-  fetchTournament();
+  await fetchTournamentsList();
+  // Sólo auto-cargar si quedó un torneo seleccionado (el guardado en LS)
+  if (document.getElementById('tournamentId').value) {
+    fetchTournament();
+  }
 }
 
 function logout() {

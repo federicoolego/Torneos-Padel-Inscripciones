@@ -34,7 +34,7 @@ async function fetchCategoriesList(forceRefresh = false) {
     categoriesList = resp.data;
     populateRankingCategorySelect();
     statusEl.className = 'status ok';
-    statusEl.textContent = `✓ Categorías OK (${categoriesList.length}) · ${new Date().toLocaleTimeString('es-AR')}`;
+    statusEl.textContent = `✓ Categorías OK (${categoriesList.length}) · ${new Date().toLocaleTimeString('es-AR', {hour12:false})}`;
   } catch (err) {
     showError(err, '/api/categories');
     statusEl.className = 'status error';
@@ -129,7 +129,7 @@ async function fetchRanking(categoryId, forceRefresh = false) {
     renderRanking();
     updateRankUpdatedHint();
     statusEl.className = 'status ok';
-    statusEl.textContent = `✓ Ranking OK · ${new Date().toLocaleTimeString('es-AR')}`;
+    statusEl.textContent = `✓ Ranking OK · ${new Date().toLocaleTimeString('es-AR', {hour12:false})}`;
   } catch (err) {
     showError(err, `/api/tournament-categories/ranking?category_id=${categoryId}`);
     statusEl.className = 'status error';
@@ -148,7 +148,7 @@ function updateRankUpdatedHint() {
   const hint = document.getElementById('rankUpdatedHint');
   const cached = currentRankingCategoryId != null ? rankingCache[currentRankingCategoryId] : null;
   if (!cached) { hint.textContent = ''; return; }
-  hint.textContent = `Actualizado: ${new Date(cached.fetchedAt).toLocaleTimeString('es-AR')}`;
+  hint.textContent = `Actualizado: ${new Date(cached.fetchedAt).toLocaleTimeString('es-AR', {hour12:false})}`;
 }
 
 // ============ RENDER ============

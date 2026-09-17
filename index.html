@@ -49,21 +49,39 @@
 
 <!-- API CONTROL (se oculta en vista Ranking) -->
 <div class="api-bar" id="apiBar">
-  <label>API</label>
-  <input type="text" id="baseUrl" value="https://circuitopm.ar" spellcheck="false" class="base"/>
-  <label>Torneo ID</label>
-  <input type="number" id="tournamentId" value="16" class="small" min="1"/>
-  <label>Bearer Token</label>
-  <input type="password" id="bearerToken" placeholder="eyJhbGci..." class="token"/>
-  <button id="fetchBtn" onclick="fetchTournament()">🔄 Cargar</button>
+  <div class="tournament-picker">
+    <span class="picker-icon">🏆</span>
+    <select id="tournamentId" class="tournament-select">
+      <option value="">Cargando torneos…</option>
+    </select>
+  </div>
+  <button id="fetchBtn" class="btn-primary" onclick="fetchTournament()">
+    <span>🔄</span> Cargar
+  </button>
   <span class="status" id="apiStatus">Listo</span>
+  <button id="settingsToggleBtn" class="btn-icon" onclick="toggleApiSettings()" title="Configuración avanzada (API URL y token)">⚙</button>
+</div>
+
+<!-- Panel avanzado (oculto por default) -->
+<div class="api-settings hidden" id="apiSettings">
+  <div class="settings-group">
+    <label>API URL</label>
+    <input type="text" id="baseUrl" value="https://circuitopm.ar" spellcheck="false" class="base"/>
+  </div>
+  <div class="settings-group">
+    <label>Bearer Token</label>
+    <input type="password" id="bearerToken" placeholder="eyJhbGci..." class="token"/>
+  </div>
+  <button class="btn-modern" onclick="fetchTournamentsList(true)">↻ Recargar torneos</button>
 </div>
 
 <!-- CACHE BAR (sólo vista torneo) -->
 <div class="cache-bar" id="cacheBar">
   <span class="cache-info">💾 Cache de equipos: <strong id="cacheCount">0</strong> teams · última precarga: <strong id="cacheDate">nunca</strong></span>
-  <button class="secondary" onclick="showPreloadModal()">⚡ Precargar equipos</button>
-  <button class="secondary" onclick="clearCache()">🗑 Vaciar cache</button>
+  <div class="cache-actions">
+    <button class="btn-modern btn-accent" onclick="showPreloadModal()"><span>⚡</span> Precargar equipos</button>
+    <button class="btn-modern btn-danger" onclick="clearCache()"><span>🗑</span> Vaciar cache</button>
+  </div>
 </div>
 
 <div id="errorBox" class="error-box hidden"></div>

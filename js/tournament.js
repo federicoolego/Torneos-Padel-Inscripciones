@@ -3,6 +3,73 @@
  * También dispara el enriquecimiento del teamCache tras cargar un torneo.
  */
 
+// Helper local: hora 24hs formato es-AR
+function fmtTime24(d) {
+  return new Date(d).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+}
+
+/**
+ * Trae el listado de torneos desde /api/tournaments y puebla el <select>.
+ * Se llama en showApp() y también cuando el usuario aprieta "Recargar torneos"
+ * en el panel de settings.
+ */
+async function fetchTournamentsList(forceRefresh = false) {
+  const sel = document.getElementById('tournamentId');
+  const statusEl = document.getElementById('apiStatus');
+  const savedTid = localStorage.getItem(LS_TID);
+
+  sel.disabled = true;
+  sel.innerHTML = '<option value="">Cargando torneos…</option>';
+  statusEl.className = 'status loading';
+  statusEl.innerHTML = '<span class="spinner"></span>Cargando torneos...';
+
+  try {
+    const resp = await apiGet(`/api/tournaments?_ts=${Date.now()}`);
+    const list = Array.isArray(resp?.data) ? resp.data : [];
+    // Más recientes primero
+    list.sort((a, b) => new Date(b.fecha_inicio || 0) - new Date(a.fecha_inicio || 0));
+
+    if (!list.length) {
+      sel.innerHTML = '<option value="">Sin torneos disponibles</option>';
+      statusEl.className = 'status error';
+      statusEl.textContent = '✗ Sin torneos';
+      return [];
+    }
+
+    sel.innerHTML = list.map(t => {
+      const d = t.fecha_inicio ? new Date(t.fecha_inicio) : null;
+      const dateLbl = d
+        ? d.toLocaleDateString('es-AR', { month: 'short', year: 'numeric' })
+        : '';
+      const name = t.nombre || `Torneo #${t.id}`;
+      return `<option value="${t.id}">${name}${dateLbl ? ' · ' + dateLbl : ''}</option>`;
+    }).join('');
+
+    if (savedTid && list.some(t => String(t.id) === String(savedTid))) {
+      sel.value = savedTid;
+    }
+    sel.disabled = false;
+
+    statusEl.className = 'status ok';
+    statusEl.textContent = `✓ ${list.length} torneos · ${fmtTime24(Date.now())}`;
+    return list;
+  } catch (err) {
+    showError(err, '/api/tournaments');
+    sel.innerHTML = '<option value="">Error cargando torneos</option>';
+    statusEl.className = 'status error';
+    statusEl.textContent = '✗ Error torneos';
+    return [];
+  }
+}
+
+/** Toggle del panel avanzado (API URL / Bearer Token) */
+function toggleApiSettings() {
+  const panel = document.getElementById('apiSettings');
+  const btn = document.getElementById('settingsToggleBtn');
+  const isHidden = panel.classList.toggle('hidden');
+  btn.classList.toggle('active', !isHidden);
+}
+
 async function fetchTournament() {
   saveToken(); saveBase(); saveTid();
   const id = document.getElementById('tournamentId').value.trim();
@@ -37,7 +104,7 @@ async function fetchTournament() {
     renderRegistrations();
 
     statusEl.className = 'status ok';
-    statusEl.textContent = `✓ OK (${enriched} teams nuevos) · ${new Date().toLocaleTimeString('es-AR')}`;
+    statusEl.textContent = `✓ OK (${enriched} teams nuevos) · ${fmtTime24(Date.now())}`;
   } catch (err) {
     showError(err, `/api/tournaments/${id}`);
     statusEl.className = 'status error';
