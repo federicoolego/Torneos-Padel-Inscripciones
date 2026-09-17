@@ -132,6 +132,12 @@ function renderTable() {
       const pct = r.cupo ? Math.round((r.inscriptions / r.cupo) * 100) : 0;
       const barW = Math.min(pct, 100);
       const tr = document.createElement('tr');
+      tr.className = 'cat-row-clickable';
+      tr.title = 'Click para ver el cuadro de playoff';
+      tr.onclick = () => openBracketModal(r.id, {
+        title: `Cuadro · ${r.name} (${r.gender})`,
+        subtitle: raw?.data?.nombre ? `${raw.data.nombre}` : `Torneo #${document.getElementById('tournamentId').value}`
+      });
       tr.innerHTML = `
         <td><strong>${r.name}</strong></td>
         <td><span class="pill ${r.gender}">${r.gender}</span></td>

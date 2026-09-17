@@ -47,24 +47,34 @@ async function openBracketFromHistory(rowEl) {
     return openBracketModal(Number(tcId), meta);
   }
 
-  // Fallback: derivar tc_id
-  if (!tid || !cid) {
-    console.warn('[bracket] Falta tournament_id y/o category_id en el entry:', rowEl.dataset);
-    alert('No se pudo identificar el torneo desde este registro. Revisá la consola.');
+  // Fallback: derivar tc_id desde tournament_id + category_id
+  if (tid && cid) {
+    showBracketModal(meta, `<div class="bracket-loading"><span class="spinner"></span> Ubicando torneo…</div>`);
+    try {
+      const resolved = await resolveTcId(tid, cid);
+      if (!resolved) {
+        setBracketBody(`<div class="bracket-empty">No se encontró la categoría <strong>${cid}</strong> en el torneo #${tid}.</div>`);
+        return;
+      }
+      openBracketModal(resolved, meta);
+    } catch (err) {
+      setBracketBody(`<div class="bracket-error">⚠ ${err.message}</div>`);
+    }
     return;
   }
 
-  showBracketModal(meta, `<div class="bracket-loading"><span class="spinner"></span> Ubicando torneo…</div>`);
-  try {
-    const resolved = await resolveTcId(tid, cid);
-    if (!resolved) {
-      setBracketBody(`<div class="bracket-empty">No se encontró la categoría en el torneo #${tid}.</div>`);
-      return;
-    }
-    openBracketModal(resolved, meta);
-  } catch (err) {
-    setBracketBody(`<div class="bracket-error">⚠ ${err.message}</div>`);
-  }
+  // No hay datos suficientes: mostramos el problema en el modal (no consola)
+  console.warn('[bracket] Faltan tournament_id y/o category_id en el entry:', rowEl.dataset);
+  showBracketModal(meta, `
+    <div class="bracket-error">
+      <p>⚠ No se pudo identificar el torneo.</p>
+      <p style="font-size:11px;color:var(--text-muted);margin-top:8px">
+        El backend no está exponiendo <code>tournament_category_id</code> ni <code>tournament_id</code> en el historial.
+        Abrí la consola del navegador — el objeto crudo del historial se logueó ahí (buscá "pointsHistory entries").
+      </p>
+      <pre style="font-size:10px;background:var(--bg-tertiary);padding:8px;border-radius:4px;margin-top:8px;text-align:left;overflow:auto">${escapeHtml(JSON.stringify(rowEl.dataset, null, 2))}</pre>
+    </div>
+  `);
 }
 
 async function openBracketModal(tcId, meta = {}) {

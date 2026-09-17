@@ -668,3 +668,18 @@ td { padding: 10px 12px; vertical-align: middle; }
     font-size: 11px;
   }
 }
+
+/* Filas clickeables de la tabla de Categorías */
+.cat-row-clickable {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.cat-row-clickable:hover {
+  background: var(--bg-hover);
+}
+.cat-row-clickable:hover td:first-child strong::after {
+  content: ' 🏆';
+  font-size: 10px;
+  opacity: 0.6;
+  margin-left: 4px;
+}
