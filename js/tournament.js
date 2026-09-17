@@ -48,22 +48,48 @@ async function fetchTournamentsList(forceRefresh = false) {
     });
     const list = [...uniq.values()];
 
+    // Sondeo secuencial: pegar a /api/tournaments/{maxId+1}, +2, +3...
+    // hasta que uno devuelva 404. Sirve para agarrar el torneo activo cuando
+    // /api/tournaments (list) no lo incluye. Cap a 10 iteraciones por las dudas.
+    if (list.length) {
+      const maxId = Math.max(...list.map(t => Number(t.id) || 0));
+      const MAX_PROBE = 10;
+      for (let offset = 1; offset <= MAX_PROBE; offset++) {
+        const probeId = maxId + offset;
+        try {
+          const resp = await apiGet(`/api/tournaments/${probeId}?_ts=${Date.now()}`);
+          if (resp?.data && resp.data.id) {
+            console.log(`[tournaments] probe #${probeId} → HIT (${resp.data.nombre || 'sin nombre'})`);
+            uniq.set(resp.data.id, resp.data);
+          } else {
+            console.log(`[tournaments] probe #${probeId} → respuesta vacía, corto`);
+            break;
+          }
+        } catch (err) {
+          console.log(`[tournaments] probe #${probeId} → ${err.message}, corto`);
+          break;
+        }
+      }
+    }
+
+    const finalList = [...uniq.values()];
+
     // Ordenar: no-finalizados primero, después por fecha_inicio descendente
-    list.sort((a, b) => {
+    finalList.sort((a, b) => {
       const aFin = /finaliz/i.test(a.estado || '');
       const bFin = /finaliz/i.test(b.estado || '');
       if (aFin !== bFin) return aFin ? 1 : -1;
       return new Date(b.fecha_inicio || 0) - new Date(a.fecha_inicio || 0);
     });
 
-    if (!list.length) {
+    if (!finalList.length) {
       sel.innerHTML = '<option value="">Sin torneos disponibles</option>';
       statusEl.className = 'status error';
       statusEl.textContent = '✗ Sin torneos';
       return [];
     }
 
-    sel.innerHTML = list.map(t => {
+    sel.innerHTML = finalList.map(t => {
       const d = t.fecha_inicio ? new Date(t.fecha_inicio) : null;
       const dateLbl = d
         ? d.toLocaleDateString('es-AR', { month: 'short', year: 'numeric' })
@@ -74,14 +100,14 @@ async function fetchTournamentsList(forceRefresh = false) {
       return `<option value="${t.id}">${name}${dateLbl ? ' · ' + dateLbl : ''}${estadoLbl}</option>`;
     }).join('');
 
-    if (savedTid && list.some(t => String(t.id) === String(savedTid))) {
+    if (savedTid && finalList.some(t => String(t.id) === String(savedTid))) {
       sel.value = savedTid;
     }
     sel.disabled = false;
 
     statusEl.className = 'status ok';
-    statusEl.textContent = `✓ ${list.length} torneos · ${fmtTime24(Date.now())}`;
-    return list;
+    statusEl.textContent = `✓ ${finalList.length} torneos · ${fmtTime24(Date.now())}`;
+    return finalList;
   } catch (err) {
     showError(err, '/api/tournaments');
     sel.innerHTML = '<option value="">Error cargando torneos</option>';
